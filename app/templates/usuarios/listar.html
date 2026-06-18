@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Usuarios</h2>
+        {% if session.get('rol_id') == 1 %}
+        <a href="{{ url_for('usuarios.crear_usuario') }}" class="btn btn-primary">Nuevo usuario</a>
+        {% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                {% if session.get('rol_id') == 1 %}
+                <th>Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.username }}</td>
+                <td>
+                    {% if usuario.rol_id == 1 %}
+                        <span class="badge badge-admin">Admin</span>
+                    {% else %}
+                        <span class="badge badge-usuario">Usuario</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if usuario.estado == 1 %}
+                        <span class="badge badge-active">Activo</span>
+                    {% else %}
+                        <span class="badge badge-inactive">Inactivo</span>
+                    {% endif %}
+                </td>
+                {% if session.get('rol_id') == 1 %}
+                <td class="actions">
+                    <a href="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary">Editar</a>
+                    <form method="POST" action="{{ url_for('usuarios.borrar_usuario', usuario_id=usuario.id) }}"
+                          onsubmit="return confirm('¿Eliminar este usuario?');" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align:center; color:#888;">No hay usuarios registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
