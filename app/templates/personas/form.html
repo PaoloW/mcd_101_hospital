@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if persona else 'Nueva' }} persona — Hospital{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <h2 style="margin-bottom: 1.5rem;">{{ 'Editar' if persona else 'Nueva' }} persona</h2>
+
+    <form method="POST"
+          action="{{ url_for('personas.editar_persona', persona_id=persona.id) if persona else url_for('personas.crear_persona') }}">
+        <label for="numero_documento">Número de documento</label>
+        <input type="text" id="numero_documento" name="numero_documento"
+               value="{{ persona.numero_documento if persona else '' }}" maxlength="15" required>
+
+        <label for="nombres">Nombres</label>
+        <input type="text" id="nombres" name="nombres"
+               value="{{ persona.nombres if persona else '' }}">
+
+        <label for="primer_apellido">Primer apellido</label>
+        <input type="text" id="primer_apellido" name="primer_apellido"
+               value="{{ persona.primer_apellido if persona else '' }}">
+
+        <label for="segundo_apellido">Segundo apellido</label>
+        <input type="text" id="segundo_apellido" name="segundo_apellido"
+               value="{{ persona.segundo_apellido if persona else '' }}">
+
+        <label for="fecha_nacimiento">Fecha de nacimiento</label>
+        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento"
+               value="{{ persona.fecha_nacimiento.isoformat() if persona and persona.fecha_nacimiento else '' }}">
+
+        <label for="sexo">Sexo</label>
+        <select id="sexo" name="sexo">
+            <option value="">— Seleccionar —</option>
+            <option value="M" {{ 'selected' if persona and persona.sexo == 'M' else '' }}>Masculino</option>
+            <option value="F" {{ 'selected' if persona and persona.sexo == 'F' else '' }}>Femenino</option>
+        </select>
+
+        <label for="direccion">Dirección</label>
+        <input type="text" id="direccion" name="direccion"
+               value="{{ persona.direccion if persona else '' }}">
+
+        <label for="telefono">Teléfono</label>
+        <input type="text" id="telefono" name="telefono"
+               value="{{ persona.telefono if persona else '' }}">
+
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" name="correo"
+               value="{{ persona.correo if persona else '' }}">
+
+        <div style="display:flex; gap:.5rem;">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('personas.listar_personas') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

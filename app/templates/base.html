@@ -79,6 +79,31 @@
         .badge-user  { background: #a8dadc; color: #1a1a2e; }
         .badge-active   { background: #d4edda; color: #155724; }
         .badge-inactive { background: #f8d7da; color: #721c24; }
+        .busqueda-persona {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: .5rem;
+        }
+        .busqueda-persona input { margin-bottom: 0; flex: 1; }
+        .mensaje-busqueda {
+            font-size: .9rem;
+            margin-bottom: 1rem;
+        }
+        .mensaje-busqueda.error { color: #721c24; }
+        .mensaje-busqueda.exito { color: #155724; }
+        .resultado-persona {
+            background: #e8f4f8;
+            border-radius: 6px;
+            padding: .75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .campo-solo-lectura {
+            background: #f0f0f0;
+            border-radius: 6px;
+            padding: .75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .texto-secundario { color: #666; font-size: .9rem; }
     </style>
 </head>
 <body>
@@ -87,6 +112,8 @@
         <div class="container">
             <span>Hospital — {{ session.get('username') }}</span>
             <nav>
+                <a href="{{ url_for('personas.listar_personas') }}">Personas</a>
+                &nbsp;|&nbsp;
                 <a href="{{ url_for('usuarios.listar_usuarios') }}">Usuarios</a>
                 &nbsp;|&nbsp;
                 <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
@@ -106,5 +133,6 @@
 
         {% block content %}{% endblock %}
     </div>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

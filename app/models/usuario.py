@@ -7,10 +7,13 @@ class Usuario(db.Model):
     __tablename__ = "usuarios"
 
     id = db.Column(db.Integer, primary_key=True)
+    persona_id = db.Column(db.Integer, db.ForeignKey("personas.id"), nullable=False)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    rol_id = db.Column(db.Integer, nullable=False, default=2)
+    rol_id = db.Column(db.Integer, nullable=False, default=3)
     estado = db.Column(db.Integer, nullable=False, default=1)
+
+    persona = db.relationship("Persona", backref=db.backref("usuarios", lazy=True))
 
     ADMIN_ROL_ID = 1
     DOCTOR_ROL_ID = 2
@@ -37,6 +40,7 @@ class Usuario(db.Model):
     def to_dict(self) -> dict:
         return {
             "id": self.id,
+            "persona_id": self.persona_id,
             "username": self.username,
             "rol_id": self.rol_id,
             "estado": self.estado,

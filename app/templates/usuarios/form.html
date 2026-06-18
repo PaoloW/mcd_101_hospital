@@ -6,9 +6,30 @@
 <div class="card" style="max-width: 500px;">
     <h2 style="margin-bottom: 1.5rem;">{{ 'Editar' if usuario else 'Nuevo' }} usuario</h2>
 
-    <form method="POST"
+    <form method="POST" id="form-usuario"
           action="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) if usuario else url_for('usuarios.crear_usuario') }}">
-        <label for="usuario">Usuario</label>
+
+        {% if usuario %}
+        <label>Persona asociada</label>
+        <div class="campo-solo-lectura">
+            <strong>{{ usuario.persona.nombre_completo or '—' }}</strong>
+            <span class="texto-secundario">({{ usuario.persona.numero_documento }})</span>
+        </div>
+        {% else %}
+        <label for="numero_documento_busqueda">Buscar persona por documento</label>
+        <div class="busqueda-persona">
+            <input type="text" id="numero_documento_busqueda" maxlength="15"
+                   placeholder="Ingrese el número de documento">
+            <button type="button" id="btn-buscar-persona" class="btn btn-secondary">Buscar</button>
+        </div>
+        <p id="mensaje-busqueda" class="mensaje-busqueda" hidden></p>
+        <div id="resultado-persona" class="resultado-persona" hidden>
+            <span id="nombre-persona-encontrada"></span>
+        </div>
+        <input type="hidden" id="persona_id" name="persona_id" value="">
+        {% endif %}
+
+        <label for="username">Usuario</label>
         <input type="text" id="username" name="username"
                value="{{ usuario.username if usuario else '' }}" required>
 
@@ -18,7 +39,10 @@
         <label for="rol_id">Rol</label>
         <select id="rol_id" name="rol_id">
             <option value="1" {{ 'selected' if usuario and usuario.rol_id == 1 else '' }}>Admin</option>
-            <option value="2" {{ 'selected' if not usuario or usuario.rol_id != 1 else '' }}>Usuario</option>
+            <option value="2" {{ 'selected' if not usuario or usuario.rol_id == 2 else '' }}>Doctor</option>
+            <option value="3" {{ 'selected' if usuario and usuario.rol_id == 3 else '' }}>Paciente</option>
+            <option value="4" {{ 'selected' if usuario and usuario.rol_id == 4 else '' }}>Enfermero</option>
+            <option value="5" {{ 'selected' if usuario and usuario.rol_id == 5 else '' }}>Laboratorista</option>
         </select>
 
         <label for="estado">Estado</label>
@@ -33,4 +57,80 @@
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% if not usuario %}
+<script>
+(function () {
+    const inputDocumento = document.getElementById('numero_documento_busqueda');
+    const btnBuscar = document.getElementById('btn-buscar-persona');
+    const mensaje = document.getElementById('mensaje-busqueda');
+    const resultado = document.getElementById('resultado-persona');
+    const nombrePersona = document.getElementById('nombre-persona-encontrada');
+    const inputPersonaId = document.getElementById('persona_id');
+    const form = document.getElementById('form-usuario');
+    const urlBusqueda = "{{ url_for('personas.buscar_por_documento') }}";
+
+    function limpiarBusqueda() {
+        inputPersonaId.value = '';
+        resultado.hidden = true;
+        mensaje.hidden = true;
+        mensaje.className = 'mensaje-busqueda';
+    }
+
+    async function buscarPersona() {
+        const documento = inputDocumento.value.trim();
+        limpiarBusqueda();
+
+        if (!documento) {
+            mensaje.textContent = 'Ingrese un número de documento.';
+            mensaje.className = 'mensaje-busqueda error';
+            mensaje.hidden = false;
+            return;
+        }
+
+        try {
+            const respuesta = await fetch(`${urlBusqueda}?documento=${encodeURIComponent(documento)}`);
+            const datos = await respuesta.json();
+
+            if (!datos.encontrado) {
+                mensaje.textContent = datos.mensaje;
+                mensaje.className = 'mensaje-busqueda error';
+                mensaje.hidden = false;
+                return;
+            }
+
+            inputPersonaId.value = datos.id;
+            nombrePersona.textContent = datos.nombre_completo || datos.numero_documento;
+            resultado.hidden = false;
+            mensaje.textContent = 'Persona encontrada.';
+            mensaje.className = 'mensaje-busqueda exito';
+            mensaje.hidden = false;
+        } catch (error) {
+            mensaje.textContent = 'Error al buscar la persona.';
+            mensaje.className = 'mensaje-busqueda error';
+            mensaje.hidden = false;
+        }
+    }
+
+    btnBuscar.addEventListener('click', buscarPersona);
+    inputDocumento.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Enter') {
+            evento.preventDefault();
+            buscarPersona();
+        }
+    });
+
+    form.addEventListener('submit', function (evento) {
+        if (!inputPersonaId.value) {
+            evento.preventDefault();
+            mensaje.textContent = 'Debe buscar y seleccionar una persona antes de guardar.';
+            mensaje.className = 'mensaje-busqueda error';
+            mensaje.hidden = false;
+        }
+    });
+})();
+</script>
+{% endif %}
 {% endblock %}

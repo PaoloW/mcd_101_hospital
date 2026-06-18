@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Personas — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Personas</h2>
+        {% if session.get('rol_id') == 1 %}
+        <a href="{{ url_for('personas.crear_persona') }}" class="btn btn-primary">Nueva persona</a>
+        {% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Documento</th>
+                <th>Nombre completo</th>
+                <th>Sexo</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                {% if session.get('rol_id') == 1 %}
+                <th>Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for persona in personas %}
+            <tr>
+                <td>{{ persona.id }}</td>
+                <td>{{ persona.numero_documento }}</td>
+                <td>{{ persona.nombre_completo or '—' }}</td>
+                <td>{{ persona.sexo or '—' }}</td>
+                <td>{{ persona.telefono or '—' }}</td>
+                <td>{{ persona.correo or '—' }}</td>
+                {% if session.get('rol_id') == 1 %}
+                <td>
+                    <div class="actions">
+                        <a href="{{ url_for('personas.editar_persona', persona_id=persona.id) }}" class="btn btn-secondary">Editar</a>
+                        <form method="POST" action="{{ url_for('personas.eliminar_persona', persona_id=persona.id) }}"
+                            onsubmit="return confirm('¿Eliminar esta persona?');" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align:center; color:#888;">No hay personas registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

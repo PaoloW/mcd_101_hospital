@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.controllers.auth_controller import admin_requerido, login_requerido
 from app.extensions import db
+from app.models.persona import Persona
 from app.models.usuario import Usuario
 
 usuarios_bp = Blueprint("usuarios", __name__, url_prefix="/usuarios")
@@ -22,16 +23,35 @@ def crear_usuario():
         password = request.form.get("password", "")
         rol_id = request.form.get("rol_id", type=int, default=2)
         estado = request.form.get("estado", type=int, default=1)
+        persona_id = request.form.get("persona_id", type=int)
 
         if not username or not password:
             flash("Usuario y contraseña son obligatorios.", "danger")
+            return render_template("usuarios/form.html", usuario=None)
+
+        if not persona_id:
+            flash("Debe buscar y seleccionar una persona por documento.", "danger")
+            return render_template("usuarios/form.html", usuario=None)
+
+        persona = Persona.query.get(persona_id)
+        if persona is None:
+            flash("La persona seleccionada no existe.", "danger")
+            return render_template("usuarios/form.html", usuario=None)
+
+        if Usuario.query.filter_by(persona_id=persona_id).first():
+            flash("Esa persona ya tiene un usuario asociado.", "danger")
             return render_template("usuarios/form.html", usuario=None)
 
         if Usuario.query.filter_by(username=username).first():
             flash("Ese nombre de usuario ya existe.", "danger")
             return render_template("usuarios/form.html", usuario=None)
 
-        usuario = Usuario(username=username, rol_id=rol_id, estado=estado)
+        usuario = Usuario(
+            persona_id=persona_id,
+            username=username,
+            rol_id=rol_id,
+            estado=estado,
+        )
         usuario.set_password(password)
 
         db.session.add(usuario)

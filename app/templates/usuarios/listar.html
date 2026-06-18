@@ -16,6 +16,8 @@
             <tr>
                 <th>ID</th>
                 <th>Usuario</th>
+                <th>Persona</th>
+                <th>Documento</th>
                 <th>Rol</th>
                 <th>Estado</th>
                 {% if session.get('rol_id') == 1 %}
@@ -28,11 +30,21 @@
             <tr>
                 <td>{{ usuario.id }}</td>
                 <td>{{ usuario.username }}</td>
+                <td>{{ usuario.persona.nombre_completo or '—' }}</td>
+                <td>{{ usuario.persona.numero_documento }}</td>
                 <td>
                     {% if usuario.rol_id == 1 %}
                         <span class="badge badge-admin">Admin</span>
+                    {% elif usuario.rol_id == 2 %}
+                        <span class="badge badge-user">Doctor</span>
+                    {% elif usuario.rol_id == 3 %}
+                        <span class="badge badge-user">Paciente</span>
+                    {% elif usuario.rol_id == 4 %}
+                        <span class="badge badge-user">Enfermero</span>
+                    {% elif usuario.rol_id == 5 %}
+                        <span class="badge badge-user">Laboratorista</span>
                     {% else %}
-                        <span class="badge badge-usuario">Usuario</span>
+                        <span class="badge badge-user">Rol {{ usuario.rol_id }}</span>
                     {% endif %}
                 </td>
                 <td>
@@ -43,18 +55,20 @@
                     {% endif %}
                 </td>
                 {% if session.get('rol_id') == 1 %}
-                <td class="actions">
-                    <a href="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary">Editar</a>
-                    <form method="POST" action="{{ url_for('usuarios.borrar_usuario', usuario_id=usuario.id) }}"
-                          onsubmit="return confirm('¿Eliminar este usuario?');" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
+                <td>
+                    <div class="actions">
+                        <a href="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary">Editar</a>
+                        <form method="POST" action="{{ url_for('usuarios.borrar_usuario', usuario_id=usuario.id) }}"
+                            onsubmit="return confirm('¿Eliminar este usuario?');" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
                 </td>
                 {% endif %}
             </tr>
             {% else %}
             <tr>
-                <td colspan="5" style="text-align:center; color:#888;">No hay usuarios registrados.</td>
+                <td colspan="7" style="text-align:center; color:#888;">No hay usuarios registrados.</td>
             </tr>
             {% endfor %}
         </tbody>
