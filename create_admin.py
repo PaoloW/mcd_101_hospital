@@ -1,4 +1,3 @@
-"""Create the first admin user. Usage: python create_admin.py <usuario> <password>"""
 import sys
 
 from app import create_app
@@ -18,7 +17,7 @@ with app.app_context():
         print(f"El usuario '{username}' ya existe.")
         sys.exit(1)
 
-    admin = Usuario(usuario=username, rol_id=Usuario.ADMIN_ROLE_ID, estado=1)
+    admin = Usuario(usuario=username, rol_id=Usuario.ADMIN_ROL_ID, estado=1)
     admin.set_password(password)
     db.session.add(admin)
     db.session.commit()

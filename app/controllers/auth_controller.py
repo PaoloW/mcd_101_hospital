@@ -25,7 +25,7 @@ def admin_requerido(view):
         if "usuario_id" not in session:
             flash("Debes iniciar sesión para continuar.", "warning")
             return redirect(url_for("auth.login"))
-        if session.get("rol_id") != Usuario.ADMIN_ROLE_ID:
+        if session.get("rol_id") != Usuario.ADMIN_ROL_ID:
             flash("No tienes permisos para realizar esta acción.", "danger")
             return redirect(url_for("usuarios.listar_usuarios"))
         return view(*args, **kwargs)

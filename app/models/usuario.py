@@ -12,7 +12,11 @@ class Usuario(db.Model):
     rol_id = db.Column(db.Integer, nullable=False, default=2)
     estado = db.Column(db.Integer, nullable=False, default=1)
 
-    ADMIN_ROLE_ID = 1
+    ADMIN_ROL_ID = 1
+    DOCTOR_ROL_ID = 2
+    PACIENTE_ROL_ID = 3
+    ENFERMERO_ROL_ID = 4
+    LABORATORISTA_ROL_ID = 5
 
     def set_password(self, plain_password: str) -> None:
         self.password = generate_password_hash(plain_password)
@@ -24,7 +28,7 @@ class Usuario(db.Model):
 
     @property
     def is_admin(self) -> bool:
-        return self.rol_id == self.ADMIN_ROLE_ID
+        return self.rol_id == self.ADMIN_ROL_ID
 
     @property
     def is_active(self) -> bool:
