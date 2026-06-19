@@ -33,6 +33,10 @@
                         <td>{{ procedimiento.nombre }}</td>
                         <td>{{ procedimiento.seccion.nombre if procedimiento.seccion else '—' }}</td>
                         <td class="text-end">
+                            <a href="{{ url_for('procedimientos.ver_procedimiento', procedimiento_id=procedimiento.id) }}" class="btn btn-info btn-sm">
+                                <span class="d-none d-lg-inline">Ver</span>
+                                <span class="d-lg-none">👁</span>
+                            </a>
                             <a href="{{ url_for('procedimientos.actualizar_procedimiento', procedimiento_id=procedimiento.id) }}" class="btn btn-secondary btn-sm">
                                 <span class="d-none d-lg-inline">Editar</span>
                                 <span class="d-lg-none">✎</span>

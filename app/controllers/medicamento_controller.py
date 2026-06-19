@@ -57,6 +57,13 @@ def guardar_medicamento():
     return render_template("medicamentos/form.html", medicamento=None)
 
 
+@medicamentos_bp.route("/<int:medicamento_id>/ver")
+@personal_requerido
+def ver_medicamento(medicamento_id):
+    medicamento = Medicamento.query.get_or_404(medicamento_id)
+    return render_template("medicamentos/form.html", medicamento=medicamento, solo_lectura=True)
+
+
 @medicamentos_bp.route("/<int:medicamento_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_medicamento(medicamento_id):

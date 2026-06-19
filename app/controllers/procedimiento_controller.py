@@ -81,6 +81,14 @@ def guardar_procedimiento():
     )
 
 
+@procedimientos_bp.route("/<int:procedimiento_id>/ver")
+@personal_requerido
+def ver_procedimiento(procedimiento_id):
+    procedimiento = Procedimiento.query.get_or_404(procedimiento_id)
+    secciones = SeccionProcedimiento.query.order_by(SeccionProcedimiento.nombre).all()
+    return render_template("procedimientos/form.html", procedimiento=procedimiento, secciones=secciones, solo_lectura=True)
+
+
 @procedimientos_bp.route("/<int:procedimiento_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_procedimiento(procedimiento_id):

@@ -78,6 +78,13 @@ def guardar_persona():
     return render_template("personas/form.html", persona=None)
 
 
+@personas_bp.route("/<int:persona_id>/ver")
+@personal_requerido
+def ver_persona(persona_id):
+    persona = Persona.query.get_or_404(persona_id)
+    return render_template("personas/form.html", persona=persona, solo_lectura=True)
+
+
 @personas_bp.route("/<int:persona_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_persona(persona_id):

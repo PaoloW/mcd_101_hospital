@@ -57,6 +57,13 @@ def guardar_seccion():
     return render_template("secciones_procedimientos/form.html", seccion=None)
 
 
+@secciones_procedimientos_bp.route("/<int:seccion_id>/ver")
+@personal_requerido
+def ver_seccion(seccion_id):
+    seccion = SeccionProcedimiento.query.get_or_404(seccion_id)
+    return render_template("secciones_procedimientos/form.html", seccion=seccion, solo_lectura=True)
+
+
 @secciones_procedimientos_bp.route("/<int:seccion_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_seccion(seccion_id):

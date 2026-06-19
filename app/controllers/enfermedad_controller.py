@@ -53,6 +53,13 @@ def guardar_enfermedad():
     return render_template("enfermedades/form.html", enfermedad=None)
 
 
+@enfermedades_bp.route("/<int:enfermedad_id>/ver")
+@personal_requerido
+def ver_enfermedad(enfermedad_id):
+    enfermedad = Enfermedad.query.get_or_404(enfermedad_id)
+    return render_template("enfermedades/form.html", enfermedad=enfermedad, solo_lectura=True)
+
+
 @enfermedades_bp.route("/<int:enfermedad_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_enfermedad(enfermedad_id):

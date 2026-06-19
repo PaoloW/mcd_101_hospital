@@ -1,38 +1,46 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if medicamento else 'Nuevo' }} medicamento — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if medicamento else 'Nuevo') }} medicamento — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-9">
         <div class="card-header">
-            <h2 class="mb-0">{{ 'Editar' if medicamento else 'Nuevo' }} medicamento</h2>
+            <h2 class="mb-0">{{ 'Ver' if solo_lectura else ('Editar' if medicamento else 'Nuevo') }} medicamento</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form method="POST"
-                action="{{ url_for('medicamentos.actualizar_medicamento', medicamento_id=medicamento.id) if medicamento else url_for('medicamentos.guardar_medicamento') }}">
+                action="{{ url_for('medicamentos.actualizar_medicamento', medicamento_id=medicamento.id) if medicamento and not solo_lectura else url_for('medicamentos.guardar_medicamento') }}">
                 <div class="row">
                     <div class="col-12 col-md-4 mb-3">
                         <label class="form-label" for="codigo">Código</label>
                         <input type="text" id="codigo" name="codigo" class="form-control"
-                            value="{{ medicamento.codigo if medicamento else '' }}" maxlength="255" required>
+                            value="{{ medicamento.codigo if medicamento else '' }}" maxlength="255"
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                     </div>
                     <div class="col-12 col-md-4 mb-3">
                         <label class="form-label" for="denominacion">Denominación</label>
                         <input type="text" id="denominacion" name="denominacion" class="form-control"
-                            value="{{ medicamento.denominacion if medicamento else '' }}" maxlength="255">
+                            value="{{ medicamento.denominacion if medicamento else '' }}" maxlength="255"
+                            {{ 'disabled' if solo_lectura else '' }}>
                     </div>
                     <div class="col-12 col-md-4 mb-3">
                         <label class="form-label" for="unidad_medida">Unidad de medida</label>
                         <input type="text" id="unidad_medida" name="unidad_medida" class="form-control"
-                            value="{{ medicamento.unidad_medida if medicamento else '' }}" maxlength="10">
+                            value="{{ medicamento.unidad_medida if medicamento else '' }}" maxlength="10"
+                            {{ 'disabled' if solo_lectura else '' }}>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label" for="especificaciones_tecnicas">Especificaciones técnicas</label>
-                        <textarea id="especificaciones_tecnicas" name="especificaciones_tecnicas" class="form-control" rows="4">{{ medicamento.especificaciones_tecnicas if medicamento else '' }}</textarea>
+                        <textarea id="especificaciones_tecnicas" name="especificaciones_tecnicas" class="form-control" rows="4" {{ 'disabled' if solo_lectura else '' }}>{{ medicamento.especificaciones_tecnicas if medicamento else '' }}</textarea>
                     </div>
                     <div class="col-12 text-end">
+                        {% if not solo_lectura %}
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        {% endif %}
                         <a href="{{ url_for('medicamentos.listar_medicamentos') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </div>

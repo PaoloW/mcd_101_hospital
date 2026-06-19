@@ -49,6 +49,13 @@ def guardar_tipo_parametro():
     return render_template("tipos_parametros/form.html", tipo=None)
 
 
+@tipos_parametros_bp.route("/<int:tipo_id>/ver")
+@personal_requerido
+def ver_tipo_parametro(tipo_id):
+    tipo = TipoParametro.query.get_or_404(tipo_id)
+    return render_template("tipos_parametros/form.html", tipo=tipo, solo_lectura=True)
+
+
 @tipos_parametros_bp.route("/<int:tipo_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_tipo_parametro(tipo_id):

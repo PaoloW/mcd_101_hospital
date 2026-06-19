@@ -73,6 +73,13 @@ def guardar_usuario():
     return render_template("usuarios/form.html", usuario=None)
 
 
+@usuarios_bp.route("/<int:usuario_id>/ver")
+@admin_requerido
+def ver_usuario(usuario_id):
+    usuario = Usuario.query.get_or_404(usuario_id)
+    return render_template("usuarios/form.html", usuario=usuario, solo_lectura=True)
+
+
 @usuarios_bp.route("/<int:usuario_id>/edit", methods=["GET", "POST"])
 @admin_requerido
 def actualizar_usuario(usuario_id):

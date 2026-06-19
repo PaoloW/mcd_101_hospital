@@ -80,6 +80,14 @@ def guardar_parametro():
     return render_template("parametros/form.html", parametro=None, tipos=tipos)
 
 
+@parametros_bp.route("/<int:parametro_id>/ver")
+@personal_requerido
+def ver_parametro(parametro_id):
+    parametro = Parametro.query.get_or_404(parametro_id)
+    tipos = TipoParametro.query.order_by(TipoParametro.nombre).all()
+    return render_template("parametros/form.html", parametro=parametro, tipos=tipos, solo_lectura=True)
+
+
 @parametros_bp.route("/<int:parametro_id>/edit", methods=["GET", "POST"])
 @personal_requerido
 def actualizar_parametro(parametro_id):

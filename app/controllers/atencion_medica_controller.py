@@ -88,6 +88,23 @@ def guardar_atencion():
     )
 
 
+@atenciones_bp.route("/<int:atencion_id>/ver")
+@personal_medico_requerido
+def ver_atencion(atencion_id):
+    atencion = AtencionMedica.query.get_or_404(atencion_id)
+    tipos_atenciones = TipoAtencion.query.all()
+    estados_atenciones = EstadoAtencion.query.all()
+    responsables = Usuario.query.filter_by(rol_id=2).all()
+    return render_template(
+        "atenciones/form.html",
+        atencion=atencion,
+        tipos=tipos_atenciones,
+        estados=estados_atenciones,
+        responsables=responsables,
+        solo_lectura=True,
+    )
+
+
 @atenciones_bp.route("/<int:atencion_id>/edit", methods=["GET", "POST"])
 @personal_medico_requerido
 def actualizar_atencion(atencion_id):

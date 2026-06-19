@@ -60,6 +60,10 @@
                         </td>
                         {% if session.get('rol_id') == 1 %}
                         <td class="text-end">
+                            <a href="{{ url_for('usuarios.ver_usuario', usuario_id=usuario.id) }}" class="btn btn-info btn-sm">
+                                <span class="d-none d-lg-inline">Ver</span>
+                                <span class="d-lg-none">👁</span>
+                            </a>
                             <a href="{{ url_for('usuarios.actualizar_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary btn-sm">
                                 <span class="d-none d-lg-inline">Editar</span>
                                 <span class="d-lg-none">✎</span>

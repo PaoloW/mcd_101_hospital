@@ -1,25 +1,31 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if procedimiento else 'Nuevo' }} procedimiento — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if procedimiento else 'Nuevo') }} procedimiento — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-9">
         <div class="card-header">
-            <h2 class="mb-0">{{ 'Editar' if procedimiento else 'Nuevo' }} procedimiento</h2>
+            <h2 class="mb-0">{{ 'Ver' if solo_lectura else ('Editar' if procedimiento else 'Nuevo') }} procedimiento</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form method="POST"
-                action="{{ url_for('procedimientos.actualizar_procedimiento', procedimiento_id=procedimiento.id) if procedimiento else url_for('procedimientos.guardar_procedimiento') }}">
+                action="{{ url_for('procedimientos.actualizar_procedimiento', procedimiento_id=procedimiento.id) if procedimiento and not solo_lectura else url_for('procedimientos.guardar_procedimiento') }}">
                 <div class="row">
                     <div class="col-12 col-md-4 mb-3">
                         <label class="form-label" for="codigo_cpms">Código CPMS</label>
                         <input type="text" id="codigo_cpms" name="codigo_cpms" class="form-control"
-                            value="{{ procedimiento.codigo_cpms if procedimiento else '' }}" maxlength="8" required>
+                            value="{{ procedimiento.codigo_cpms if procedimiento else '' }}" maxlength="8"
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                     </div>
                     <div class="col-12 col-md-8 mb-3">
                         <label class="form-label" for="seccion_procedimiento_id">Sección</label>
-                        <select id="seccion_procedimiento_id" name="seccion_procedimiento_id" class="form-select" required>
+                        <select id="seccion_procedimiento_id" name="seccion_procedimiento_id" class="form-select"
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                             <option value="">— Seleccionar —</option>
                             {% for seccion in secciones %}
                             <option value="{{ seccion.id }}"
@@ -32,10 +38,14 @@
                     <div class="col-12 mb-3">
                         <label class="form-label" for="nombre">Nombre</label>
                         <input type="text" id="nombre" name="nombre" class="form-control"
-                            value="{{ procedimiento.nombre if procedimiento else '' }}" maxlength="512" required>
+                            value="{{ procedimiento.nombre if procedimiento else '' }}" maxlength="512"
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                     </div>
                     <div class="col-12 text-end">
+                        {% if not solo_lectura %}
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        {% endif %}
                         <a href="{{ url_for('procedimientos.listar_procedimientos') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </div>

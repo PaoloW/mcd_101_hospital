@@ -33,6 +33,10 @@
                         <td>{{ medicamento.denominacion or '—' }}</td>
                         <td>{{ medicamento.unidad_medida or '—' }}</td>
                         <td class="text-end">
+                            <a href="{{ url_for('medicamentos.ver_medicamento', medicamento_id=medicamento.id) }}" class="btn btn-info btn-sm">
+                                <span class="d-none d-lg-inline">Ver</span>
+                                <span class="d-lg-none">👁</span>
+                            </a>
                             <a href="{{ url_for('medicamentos.actualizar_medicamento', medicamento_id=medicamento.id) }}" class="btn btn-secondary btn-sm">
                                 <span class="d-none d-lg-inline">Editar</span>
                                 <span class="d-lg-none">✎</span>

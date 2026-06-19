@@ -29,6 +29,10 @@
                         <td>{{ tipo.id }}</td>
                         <td>{{ tipo.nombre }}</td>
                         <td class="text-end">
+                            <a href="{{ url_for('tipos_parametros.ver_tipo_parametro', tipo_id=tipo.id) }}" class="btn btn-info btn-sm">
+                                <span class="d-none d-lg-inline">Ver</span>
+                                <span class="d-lg-none">👁</span>
+                            </a>
                             <a href="{{ url_for('tipos_parametros.actualizar_tipo_parametro', tipo_id=tipo.id) }}" class="btn btn-secondary btn-sm">
                                 <span class="d-none d-lg-inline">Editar</span>
                                 <span class="d-lg-none">✎</span>
