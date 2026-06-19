@@ -1,8 +1,20 @@
 from flask import Flask, redirect, url_for
 
 from app.config import Config
-from app.controllers import auth_bp, personas_bp, usuarios_bp, atenciones_bp
+from app.controllers import (
+    auth_bp,
+    personas_bp,
+    usuarios_bp,
+    atenciones_bp,
+    enfermedades_bp,
+    secciones_procedimientos_bp,
+    procedimientos_bp,
+    medicamentos_bp,
+    tipos_parametros_bp,
+    parametros_bp,
+)
 from app.extensions import db, migrate
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -15,6 +27,12 @@ def create_app(config_class=Config):
     app.register_blueprint(personas_bp)
     app.register_blueprint(usuarios_bp)
     app.register_blueprint(atenciones_bp)
+    app.register_blueprint(enfermedades_bp)
+    app.register_blueprint(secciones_procedimientos_bp)
+    app.register_blueprint(procedimientos_bp)
+    app.register_blueprint(medicamentos_bp)
+    app.register_blueprint(tipos_parametros_bp)
+    app.register_blueprint(parametros_bp)
 
     @app.route("/")
     def index():

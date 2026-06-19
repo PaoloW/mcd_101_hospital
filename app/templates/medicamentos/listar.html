@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Medicamentos — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Medicamentos</h2>
+            <a href="{{ url_for('medicamentos.guardar_medicamento') }}" class="btn btn-primary">Nuevo medicamento</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Código</th>
+                        <th>Denominación</th>
+                        <th>Unidad</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for medicamento in medicamentos %}
+                    <tr>
+                        <td>{{ medicamento.id }}</td>
+                        <td>{{ medicamento.codigo }}</td>
+                        <td>{{ medicamento.denominacion or '—' }}</td>
+                        <td>{{ medicamento.unidad_medida or '—' }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('medicamentos.actualizar_medicamento', medicamento_id=medicamento.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                            <form method="POST" action="{{ url_for('medicamentos.eliminar_medicamento', medicamento_id=medicamento.id) }}"
+                                onsubmit="return confirm('¿Eliminar este medicamento?');" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay medicamentos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
