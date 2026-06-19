@@ -3,59 +3,100 @@
 {% block title %}{{ 'Editar' if usuario else 'Nuevo' }} usuario — Hospital{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 500px;">
-    <h2 style="margin-bottom: 1.5rem;">{{ 'Editar' if usuario else 'Nuevo' }} usuario</h2>
-
-    <form method="POST" id="form-usuario"
-          action="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) if usuario else url_for('usuarios.crear_usuario') }}">
-
-        {% if usuario %}
-        <label>Persona asociada</label>
-        <div class="campo-solo-lectura">
-            <strong>{{ usuario.persona.nombre_completo or '—' }}</strong>
-            <span class="texto-secundario">({{ usuario.persona.numero_documento }})</span>
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2>{{ 'Editar' if usuario else 'Nuevo' }} usuario</h2>
         </div>
-        {% else %}
-        <label for="numero_documento_busqueda">Buscar persona por documento</label>
-        <div class="busqueda-persona">
-            <input type="text" id="numero_documento_busqueda" maxlength="15"
-                   placeholder="Ingrese el número de documento">
-            <button type="button" id="btn-buscar-persona" class="btn btn-secondary">Buscar</button>
+        <div class="card-body">
+            <form
+                method="POST"
+                id="form-usuario"
+                action="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) if usuario else url_for('usuarios.crear_usuario') }}"
+            >
+                <div class="row">
+                    {% if usuario %}
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Persona asociada</label>
+                            <div class="alert alert-secondary">
+                                {{ usuario.persona.numero_documento }} - {{ usuario.persona.nombre_completo or '—' }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="numero_documento_busqueda">Buscar persona por documento</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="numero_documento_busqueda"
+                                    maxlength="15"
+                                    class="form-control"
+                                    placeholder="Ingrese el número de documento"
+                                >
+                                <button
+                                    type="button"
+                                    id="btn-buscar-persona"
+                                    class="btn btn-secondary"
+                                >Buscar</button>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div id="mensaje-resultado" class="alert alert alert-secondary">Busque a la persona para crear su usuario.</div>
+                        </div>
+                        <input
+                            type="hidden"
+                            id="persona_id"
+                            name="persona_id"
+                            value=""
+                        >
+                    {% endif %}
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="username">Usuario</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="{{ usuario.username if usuario else '' }}"
+                            required
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="password">Contraseña{% if usuario %} (dejar vacío para no cambiar){% endif %}</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            {{ '' if usuario else 'required' }}
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="rol_id">Rol</label>
+                        <select id="rol_id" name="rol_id" class="form-select">
+                            <option value="1" {{ 'selected' if usuario and usuario.rol_id == 1 else '' }}>Admin</option>
+                            <option value="2" {{ 'selected' if not usuario or usuario.rol_id == 2 else '' }}>Doctor</option>
+                            <option value="3" {{ 'selected' if usuario and usuario.rol_id == 3 else '' }}>Paciente</option>
+                            <option value="4" {{ 'selected' if usuario and usuario.rol_id == 4 else '' }}>Enfermero</option>
+                            <option value="5" {{ 'selected' if usuario and usuario.rol_id == 5 else '' }}>Laboratorista</option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="estado">Estado</label>
+                        <select id="estado" name="estado" class="form-select">
+                            <option value="1" {{ 'selected' if not usuario or usuario.estado == 1 else '' }}>Activo</option>
+                            <option value="0" {{ 'selected' if usuario and usuario.estado == 0 else '' }}>Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </div>
+            </form>
         </div>
-        <p id="mensaje-busqueda" class="mensaje-busqueda" hidden></p>
-        <div id="resultado-persona" class="resultado-persona" hidden>
-            <span id="nombre-persona-encontrada"></span>
-        </div>
-        <input type="hidden" id="persona_id" name="persona_id" value="">
-        {% endif %}
-
-        <label for="username">Usuario</label>
-        <input type="text" id="username" name="username"
-               value="{{ usuario.username if usuario else '' }}" required>
-
-        <label for="password">Contraseña{% if usuario %} (dejar vacío para no cambiar){% endif %}</label>
-        <input type="password" id="password" name="password" {{ '' if usuario else 'required' }}>
-
-        <label for="rol_id">Rol</label>
-        <select id="rol_id" name="rol_id">
-            <option value="1" {{ 'selected' if usuario and usuario.rol_id == 1 else '' }}>Admin</option>
-            <option value="2" {{ 'selected' if not usuario or usuario.rol_id == 2 else '' }}>Doctor</option>
-            <option value="3" {{ 'selected' if usuario and usuario.rol_id == 3 else '' }}>Paciente</option>
-            <option value="4" {{ 'selected' if usuario and usuario.rol_id == 4 else '' }}>Enfermero</option>
-            <option value="5" {{ 'selected' if usuario and usuario.rol_id == 5 else '' }}>Laboratorista</option>
-        </select>
-
-        <label for="estado">Estado</label>
-        <select id="estado" name="estado">
-            <option value="1" {{ 'selected' if not usuario or usuario.estado == 1 else '' }}>Activo</option>
-            <option value="0" {{ 'selected' if usuario and usuario.estado == 0 else '' }}>Inactivo</option>
-        </select>
-
-        <div style="display:flex; gap:.5rem;">
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}
 
@@ -65,18 +106,14 @@
 (function () {
     const inputDocumento = document.getElementById('numero_documento_busqueda');
     const btnBuscar = document.getElementById('btn-buscar-persona');
-    const mensaje = document.getElementById('mensaje-busqueda');
-    const resultado = document.getElementById('resultado-persona');
-    const nombrePersona = document.getElementById('nombre-persona-encontrada');
+    const mensaje_resultado = document.getElementById('mensaje-resultado');
     const inputPersonaId = document.getElementById('persona_id');
     const form = document.getElementById('form-usuario');
     const urlBusqueda = "{{ url_for('personas.buscar_por_documento') }}";
 
     function limpiarBusqueda() {
         inputPersonaId.value = '';
-        resultado.hidden = true;
-        mensaje.hidden = true;
-        mensaje.className = 'mensaje-busqueda';
+        mensaje_resultado.className = 'alert alert-secondary';
     }
 
     async function buscarPersona() {
@@ -84,9 +121,8 @@
         limpiarBusqueda();
 
         if (!documento) {
-            mensaje.textContent = 'Ingrese un número de documento.';
-            mensaje.className = 'mensaje-busqueda error';
-            mensaje.hidden = false;
+            mensaje_resultado.innerHTML = 'Ingrese un número de documento.';
+            mensaje_resultado.className = 'alert alert-danger';
             return;
         }
 
@@ -95,22 +131,17 @@
             const datos = await respuesta.json();
 
             if (!datos.encontrado) {
-                mensaje.textContent = datos.mensaje;
-                mensaje.className = 'mensaje-busqueda error';
-                mensaje.hidden = false;
+                mensaje_resultado.innerHTML = datos.mensaje;
+                mensaje_resultado.className = 'alert alert-danger';
                 return;
             }
 
             inputPersonaId.value = datos.id;
-            nombrePersona.textContent = datos.nombre_completo || datos.numero_documento;
-            resultado.hidden = false;
-            mensaje.textContent = 'Persona encontrada.';
-            mensaje.className = 'mensaje-busqueda exito';
-            mensaje.hidden = false;
+            mensaje_resultado.innerHTML = datos.nombre_completo || datos.numero_documento;
+            mensaje_resultado.className = 'alert alert-success';
         } catch (error) {
-            mensaje.textContent = 'Error al buscar la persona.';
-            mensaje.className = 'mensaje-busqueda error';
-            mensaje.hidden = false;
+            mensaje_resultado.innerHTML = 'Error al buscar la persona.';
+            mensaje_resultado.className = 'alert alert-danger';
         }
     }
 
@@ -125,9 +156,8 @@
     form.addEventListener('submit', function (evento) {
         if (!inputPersonaId.value) {
             evento.preventDefault();
-            mensaje.textContent = 'Debe buscar y seleccionar una persona antes de guardar.';
-            mensaje.className = 'mensaje-busqueda error';
-            mensaje.hidden = false;
+            mensaje_resultado.innerHTML = 'Debe buscar y seleccionar una persona antes de guardar.';
+            mensaje_resultado.className = 'alert alert-danger';
         }
     });
 })();

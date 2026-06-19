@@ -28,7 +28,7 @@ class Persona(db.Model):
             "segundo_apellido": self.segundo_apellido,
             "nombres": self.nombres,
             "fecha_nacimiento": (
-                self.fecha_nacimiento.isoformat() if self.fecha_nacimiento else None
+                self.fecha_nacimiento.strftime("%Y-%m-%d") if self.fecha_nacimiento else None
             ),
             "sexo": self.sexo,
             "direccion": self.direccion,
