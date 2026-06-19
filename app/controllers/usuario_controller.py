@@ -7,12 +7,16 @@ from app.models.usuario import Usuario
 
 usuarios_bp = Blueprint("usuarios", __name__, url_prefix="/usuarios")
 
+PER_PAGE = 20
+
 
 @usuarios_bp.route("/")
 @admin_requerido
 def listar_usuarios():
-    usuarios = Usuario.query.order_by(Usuario.id).all()
-    return render_template("usuarios/listar.html", usuarios=usuarios)
+    page = request.args.get("page", 1, type=int)
+    query = Usuario.query.order_by(Usuario.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("usuarios/listar.html", pagination=pagination, usuarios=pagination.items)
 
 
 @usuarios_bp.route("/create", methods=["GET", "POST"])

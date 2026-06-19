@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_pagination.html" import pagination_info %}
 
 {% block title %}Medicamentos — Hospital{% endblock %}
 
@@ -12,7 +13,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-sm table-striped table-hover">
+            <table id="table" class="table table-sm table-striped table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -45,6 +46,7 @@
                 </tbody>
             </table>
         </div>
+        {{ pagination_info(pagination) }}
     </div>
 </div>
 {% endblock %}

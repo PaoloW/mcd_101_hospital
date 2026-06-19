@@ -11,6 +11,8 @@ secciones_procedimientos_bp = Blueprint(
     url_prefix="/secciones-procedimientos",
 )
 
+PER_PAGE = 20
+
 
 def _datos_formulario_seccion():
     return {
@@ -22,8 +24,10 @@ def _datos_formulario_seccion():
 @secciones_procedimientos_bp.route("/")
 @personal_requerido
 def listar_secciones():
-    secciones = SeccionProcedimiento.query.order_by(SeccionProcedimiento.nombre).all()
-    return render_template("secciones_procedimientos/listar.html", secciones=secciones)
+    page = request.args.get("page", 1, type=int)
+    query = SeccionProcedimiento.query.order_by(SeccionProcedimiento.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("secciones_procedimientos/listar.html", pagination=pagination, secciones=pagination.items)
 
 
 @secciones_procedimientos_bp.route("/create", methods=["GET", "POST"])

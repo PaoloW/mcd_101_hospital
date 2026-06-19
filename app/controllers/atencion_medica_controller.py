@@ -9,9 +9,10 @@ from app.models.persona import Persona
 from app.models.usuario import Usuario
 from app.models.tipo_atencion import TipoAtencion
 from app.models.estado_atencion import EstadoAtencion
-from datetime import datetime
 
 atenciones_bp = Blueprint("atenciones", __name__, url_prefix="/atenciones")
+
+PER_PAGE = 20
 
 
 def _datos_formulario_atencion():
@@ -28,8 +29,10 @@ def _datos_formulario_atencion():
 @atenciones_bp.route("/")
 @personal_medico_requerido
 def listar_atenciones():
-    atenciones = AtencionMedica.query.order_by(AtencionMedica.id).all()
-    return render_template("atenciones/listar.html", atenciones=atenciones)
+    page = request.args.get("page", 1, type=int)
+    query = AtencionMedica.query.order_by(AtencionMedica.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("atenciones/listar.html", pagination=pagination, atenciones=pagination.items)
 
 
 @atenciones_bp.route("/create", methods=["GET", "POST"])
@@ -143,4 +146,3 @@ def eliminar_atencion(atencion_id):
 
     flash("Atención eliminada correctamente.", "success")
     return redirect(url_for("atenciones.listar_atenciones"))
-

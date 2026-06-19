@@ -7,6 +7,8 @@ from app.models.enfermedad import Enfermedad
 
 enfermedades_bp = Blueprint("enfermedades", __name__, url_prefix="/enfermedades")
 
+PER_PAGE = 20
+
 
 def _datos_formulario_enfermedad():
     return {
@@ -18,8 +20,10 @@ def _datos_formulario_enfermedad():
 @enfermedades_bp.route("/")
 @personal_requerido
 def listar_enfermedades():
-    enfermedades = Enfermedad.query.order_by(Enfermedad.nombre).all()
-    return render_template("enfermedades/listar.html", enfermedades=enfermedades)
+    page = request.args.get("page", 1, type=int)
+    query = Enfermedad.query.order_by(Enfermedad.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("enfermedades/listar.html", pagination=pagination, enfermedades=pagination.items)
 
 
 @enfermedades_bp.route("/create", methods=["GET", "POST"])

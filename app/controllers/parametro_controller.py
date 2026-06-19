@@ -10,6 +10,8 @@ from app.models.tipo_parametro import TipoParametro
 
 parametros_bp = Blueprint("parametros", __name__, url_prefix="/parametros")
 
+PER_PAGE = 20
+
 
 def _parsear_decimal(valor: str):
     if not valor or not valor.strip():
@@ -34,8 +36,10 @@ def _datos_formulario_parametro():
 @parametros_bp.route("/")
 @personal_requerido
 def listar_parametros():
-    parametros = Parametro.query.order_by(Parametro.nombre).all()
-    return render_template("parametros/listar.html", parametros=parametros)
+    page = request.args.get("page", 1, type=int)
+    query = Parametro.query.order_by(Parametro.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("parametros/listar.html", pagination=pagination, parametros=pagination.items)
 
 
 @parametros_bp.route("/create", methods=["GET", "POST"])

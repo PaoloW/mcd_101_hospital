@@ -9,6 +9,8 @@ from app.models.usuario import Usuario
 
 personas_bp = Blueprint("personas", __name__, url_prefix="/personas")
 
+PER_PAGE = 20
+
 
 def _parsear_fecha(valor: str):
     if not valor:
@@ -36,8 +38,10 @@ def _datos_formulario_persona():
 @personas_bp.route("/")
 @personal_requerido
 def listar_personas():
-    personas = Persona.query.order_by(Persona.id).all()
-    return render_template("personas/listar.html", personas=personas)
+    page = request.args.get("page", 1, type=int)
+    query = Persona.query.order_by(Persona.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("personas/listar.html", pagination=pagination, personas=pagination.items)
 
 
 @personas_bp.route("/create", methods=["GET", "POST"])

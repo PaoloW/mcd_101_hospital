@@ -8,6 +8,8 @@ from app.models.seccion_procedimiento import SeccionProcedimiento
 
 procedimientos_bp = Blueprint("procedimientos", __name__, url_prefix="/procedimientos")
 
+PER_PAGE = 20
+
 
 def _datos_formulario_procedimiento():
     return {
@@ -20,8 +22,10 @@ def _datos_formulario_procedimiento():
 @procedimientos_bp.route("/")
 @personal_requerido
 def listar_procedimientos():
-    procedimientos = Procedimiento.query.order_by(Procedimiento.nombre).all()
-    return render_template("procedimientos/listar.html", procedimientos=procedimientos)
+    page = request.args.get("page", 1, type=int)
+    query = Procedimiento.query.order_by(Procedimiento.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("procedimientos/listar.html", pagination=pagination, procedimientos=pagination.items)
 
 
 @procedimientos_bp.route("/create", methods=["GET", "POST"])

@@ -7,6 +7,8 @@ from app.models.tipo_parametro import TipoParametro
 
 tipos_parametros_bp = Blueprint("tipos_parametros", __name__, url_prefix="/tipos-parametros")
 
+PER_PAGE = 20
+
 
 def _datos_formulario_tipo_parametro():
     return {
@@ -17,8 +19,10 @@ def _datos_formulario_tipo_parametro():
 @tipos_parametros_bp.route("/")
 @personal_requerido
 def listar_tipos_parametros():
-    tipos = TipoParametro.query.order_by(TipoParametro.nombre).all()
-    return render_template("tipos_parametros/listar.html", tipos=tipos)
+    page = request.args.get("page", 1, type=int)
+    query = TipoParametro.query.order_by(TipoParametro.id.desc())
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("tipos_parametros/listar.html", pagination=pagination, tipos=pagination.items)
 
 
 @tipos_parametros_bp.route("/create", methods=["GET", "POST"])
