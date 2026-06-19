@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if atencion else 'Nueva' }} atención — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2>{{ 'Editar' if atencion else 'Nueva' }} atención</h2>
+        </div>
+        <div class="card-body">
+            <form
+                method="POST"
+                id="form-atencion"
+                action="{{ url_for('atenciones.editar_atencion', atencion_id=atencion.id) if atencion else url_for('atenciones.crear_atencion') }}"
+            >
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="fecha_hora">Fecha y hora</label>
+                        <input
+                            type="datetime-local"
+                            id="fecha_hora"
+                            name="fecha_hora"
+                            value="{{ atencion.fecha_hora if atencion else ahora.strftime('%Y-%m-%dT%H:%M') }}" required
+                            required
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="responsable_id">Responsable</label>
+                        <select
+                            id="responsable_id"
+                            name="responsable_id"
+                            required
+                            class="form-select"
+                        >
+                            <option value="">Seleccionar</option>
+                            {% for responsable in responsables %}
+                                <option
+                                    value="{{ responsable.id }}"
+                                    {{ 'selected' if atencion and atencion.responsable_id == responsable.id else '' }}
+                                >{{ responsable.rol.nombre }}: {{ responsable.persona.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="tipo_atencion_id">Tipo de atención</label>
+                        <select
+                            id="tipo_atencion_id"
+                            name="tipo_atencion_id"
+                            required
+                            class="form-select"
+                        >
+                            {% for tipo in tipos %}
+                                <option value="{{ tipo.id }}" {{ 'selected' if atencion and atencion.tipo_atencion_id == tipo.id else '' }}>{{ tipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="estado_atencion_id">Estado de atención</label>
+                        <select
+                            id="estado_atencion_id"
+                            name="estado_atencion_id"
+                            required
+                            class="form-select"
+                        >
+                            {% for estado in estados %}
+                                <option value="{{ estado.id }}" {{ 'selected' if atencion and atencion.estado_atencion_id == estado.id else '' }}>{{ estado.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if atencion %}
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Paciente</label>
+                            <div class="alert alert-secondary">
+                                {{ atencion.paciente.numero_documento }} - {{ atencion.paciente.nombre_completo or '—' }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12 mb-3">
+                            <label class="form-label" for="numero_documento_busqueda">Buscar paciente por documento</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="numero_documento_busqueda"
+                                    maxlength="15"
+                                    class="form-control"
+                                    placeholder="Ingrese el número de documento"
+                                >
+                                <button
+                                    type="button"
+                                    id="btn-buscar-paciente"
+                                    class="btn btn-secondary"
+                                >Buscar</button>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div id="mensaje-resultado" class="alert alert alert-secondary">Busque al paciente por su documento.</div>
+                        </div>
+                    {% endif %}
+
+                    <input
+                        type="hidden"
+                        id="paciente_id"
+                        name="paciente_id"
+                        value="{{ atencion.paciente.id if atencion else '' }}"
+                    >
+
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="observacion">Observaciones</label>
+                        <textarea
+                            id="observacion"
+                            name="observacion"
+                            class="form-control"
+                            rows="3"
+                            style="resize: none;"
+                        >{{ atencion.observacion or '' }}</textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a href="{{ url_for('atenciones.listar_atenciones') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if not atencion %}
+<script>
+(function () {
+    const inputDocumento = document.getElementById('numero_documento_busqueda');
+    const btnBuscar = document.getElementById('btn-buscar-paciente');
+    const mensaje_resultado = document.getElementById('mensaje-resultado');
+    const inputPacienteId = document.getElementById('paciente_id');
+    const form = document.getElementById('form-atencion');
+    const urlBusqueda = "{{ url_for('personas.buscar_por_documento') }}";
+
+    function limpiarBusqueda() {
+        inputPacienteId.value = '';
+        mensaje_resultado.className = 'alert alert-secondary';
+    }
+
+    async function buscarPersona() {
+        const documento = inputDocumento.value.trim();
+        limpiarBusqueda();
+
+        if (!documento) {
+            mensaje_resultado.innerHTML = 'Ingrese un número de documento.';
+            mensaje_resultado.className = 'alert alert-danger';
+            return;
+        }
+
+        try {
+            const respuesta = await fetch(`${urlBusqueda}?documento=${encodeURIComponent(documento)}`);
+            const datos = await respuesta.json();
+
+            if (!datos.encontrado) {
+                mensaje_resultado.innerHTML = datos.mensaje;
+                mensaje_resultado.className = 'alert alert-danger';
+                return;
+            }
+
+            inputPacienteId.value = datos.id;
+            mensaje_resultado.innerHTML = datos.nombre_completo || datos.numero_documento;
+            mensaje_resultado.className = 'alert alert-success';
+        } catch (error) {
+            mensaje_resultado.innerHTML = 'Error al buscar el paciente.';
+            mensaje_resultado.className = 'alert alert-danger';
+        }
+    }
+
+    btnBuscar.addEventListener('click', buscarPersona);
+    inputDocumento.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Enter') {
+            evento.preventDefault();
+            buscarPersona();
+        }
+    });
+
+    form.addEventListener('submit', function (evento) {
+        if (!inputPacienteId.value) {
+            evento.preventDefault();
+            mensaje_resultado.innerHTML = 'Debe buscar y seleccionar un paciente antes de guardar.';
+            mensaje_resultado.className = 'alert alert-danger';
+        }
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

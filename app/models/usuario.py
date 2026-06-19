@@ -10,10 +10,11 @@ class Usuario(db.Model):
     persona_id = db.Column(db.Integer, db.ForeignKey("personas.id"), nullable=False)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    rol_id = db.Column(db.Integer, nullable=False, default=3)
+    rol_id = db.Column(db.Integer, db. ForeignKey("roles.id"), nullable=False, default=3)
     estado = db.Column(db.Integer, nullable=False, default=1)
 
     persona = db.relationship("Persona", backref=db.backref("usuarios", lazy=True))
+    rol = db.relationship("Rol", backref=db.backref("usuarios", lazy=True))
 
     ADMIN_ROL_ID = 1
     DOCTOR_ROL_ID = 2

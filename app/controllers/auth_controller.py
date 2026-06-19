@@ -25,16 +25,49 @@ def admin_requerido(view):
             return redirect(url_for("auth.login"))
         if session.get("rol_id") != Usuario.ADMIN_ROL_ID:
             flash("No tienes permisos para realizar esta acción.", "danger")
-            return redirect(url_for("usuarios.listar_usuarios"))
+            return redirect(url_for("auth.home"))
         return view(*args, **kwargs)
 
+    return wrapped_view
+
+def personal_requerido(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if "usuario_id" not in session:
+            flash("Debes iniciar sesión para continuar.", "warning")
+            return redirect(url_for("auth.login"))
+        if session.get("rol_id") not in [
+            Usuario.ADMIN_ROL_ID,
+            Usuario.DOCTOR_ROL_ID,
+            Usuario.ENFERMERO_ROL_ID,
+            Usuario.LABORATORISTA_ROL_ID,
+        ]:
+            flash("No tienes permisos para realizar esta acción.", "danger")
+            return redirect(url_for("auth.home"))
+        return view(*args, **kwargs)
+    return wrapped_view
+
+def personal_medico_requerido(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if "usuario_id" not in session:
+            flash("Debes iniciar sesión para continuar.", "warning")
+            return redirect(url_for("auth.login"))
+        if session.get("rol_id") not in [
+            Usuario.DOCTOR_ROL_ID,
+            Usuario.ENFERMERO_ROL_ID,
+            Usuario.LABORATORISTA_ROL_ID,
+        ]:
+            flash("No tienes permisos para realizar esta acción.", "danger")
+            return redirect(url_for("auth.home"))
+        return view(*args, **kwargs)
     return wrapped_view
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("usuario_id"):
-        return redirect(url_for("home"))
+        return redirect(url_for("auth.home"))
 
     if request.method == "POST":
         username = request.form.get("usuario", "").strip()
@@ -56,11 +89,12 @@ def login():
         session["rol_id"] = usuario.rol_id
 
         flash(f"Bienvenido, {usuario.username}.", "success")
-        return redirect(url_for("home"))
+        return redirect(url_for("auth.home"))
 
     return render_template("auth/login.html")
 
 @auth_bp.route("/logout")
+@login_requerido
 def logout():
     session.clear()
     flash("Sesión cerrada correctamente.", "info")

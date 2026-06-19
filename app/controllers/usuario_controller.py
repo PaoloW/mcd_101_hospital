@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
-from app.controllers.auth_controller import admin_requerido, login_requerido
+from app.controllers.auth_controller import admin_requerido
 from app.extensions import db
 from app.models.persona import Persona
 from app.models.usuario import Usuario
@@ -9,7 +9,7 @@ usuarios_bp = Blueprint("usuarios", __name__, url_prefix="/usuarios")
 
 
 @usuarios_bp.route("/")
-@login_requerido
+@admin_requerido
 def listar_usuarios():
     usuarios = Usuario.query.order_by(Usuario.id).all()
     return render_template("usuarios/listar.html", usuarios=usuarios)

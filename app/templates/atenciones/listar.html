@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Atenciones — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>Atenciones</h2>
+            {% if session.get('rol_id') in [2, 4] %}
+                <a href="{{ url_for('atenciones.crear_atencion') }}" class="btn btn-primary">Nueva atención</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover" style="min-width: 600px">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Paciente</th>
+                        <th>Estado</th>
+                        {% if session.get('rol_id') == 1 %}
+                            <th class="text-end">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for atencion in atenciones %}
+                    <tr>
+                        <td>{{ atencion.id }}</td>
+                        <td>{{ atencion.fecha_hora.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ atencion.tipo_atencion.nombre }}</td>
+                        <td>{{ atencion.paciente.nombre_completo }}</td>
+                        <td>{{ atencion.estado_atencion.nombre }}</td>
+                        {% if session.get('rol_id') in [2, 4] %}
+                        <td class="text-end">
+                            <a href="{{ url_for('atenciones.editar_atencion', atencion_id=atencion.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                            <form method="POST" action="{{ url_for('atenciones.eliminar_atencion', atencion_id=atencion.id) }}"
+                                onsubmit="return confirm('¿Eliminar esta atención?');" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay atenciones registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

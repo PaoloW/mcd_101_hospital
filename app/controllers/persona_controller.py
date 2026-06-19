@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
-from app.controllers.auth_controller import admin_requerido, login_requerido
+from app.controllers.auth_controller import personal_requerido
 from app.extensions import db
 from app.models.persona import Persona
 from app.models.usuario import Usuario
@@ -34,14 +34,14 @@ def _datos_formulario_persona():
 
 
 @personas_bp.route("/")
-@login_requerido
+@personal_requerido
 def listar_personas():
     personas = Persona.query.order_by(Persona.id).all()
     return render_template("personas/listar.html", personas=personas)
 
 
 @personas_bp.route("/create", methods=["GET", "POST"])
-@admin_requerido
+@personal_requerido
 def crear_persona():
     if request.method == "POST":
         datos = _datos_formulario_persona()
@@ -65,7 +65,7 @@ def crear_persona():
 
 
 @personas_bp.route("/<int:persona_id>/edit", methods=["GET", "POST"])
-@admin_requerido
+@personal_requerido
 def editar_persona(persona_id):
     persona = Persona.query.get_or_404(persona_id)
 
@@ -96,7 +96,7 @@ def editar_persona(persona_id):
 
 
 @personas_bp.route("/<int:persona_id>/delete", methods=["POST"])
-@admin_requerido
+@personal_requerido
 def eliminar_persona(persona_id):
     persona = Persona.query.get_or_404(persona_id)
 
@@ -112,7 +112,7 @@ def eliminar_persona(persona_id):
 
 
 @personas_bp.route("/buscar-documento")
-@admin_requerido
+@personal_requerido
 def buscar_por_documento():
     documento = request.args.get("documento", "").strip()
 
@@ -123,14 +123,6 @@ def buscar_por_documento():
     if persona is None:
         return jsonify(
             {"encontrado": False, "mensaje": "No se encontró una persona con ese documento."}
-        )
-
-    if Usuario.query.filter_by(persona_id=persona.id).first():
-        return jsonify(
-            {
-                "encontrado": False,
-                "mensaje": "Esta persona ya tiene un usuario asociado.",
-            }
         )
 
     return jsonify(
