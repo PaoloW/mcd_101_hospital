@@ -7,7 +7,6 @@ from app.models.usuario import Usuario
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-
 def login_requerido(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -17,7 +16,6 @@ def login_requerido(view):
         return view(*args, **kwargs)
 
     return wrapped_view
-
 
 def admin_requerido(view):
     @wraps(view)
@@ -36,7 +34,7 @@ def admin_requerido(view):
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("usuario_id"):
-        return redirect(url_for("usuarios.listar_usuarios"))
+        return redirect(url_for("home"))
 
     if request.method == "POST":
         username = request.form.get("usuario", "").strip()
@@ -58,13 +56,16 @@ def login():
         session["rol_id"] = usuario.rol_id
 
         flash(f"Bienvenido, {usuario.username}.", "success")
-        return redirect(url_for("usuarios.listar_usuarios"))
+        return redirect(url_for("home"))
 
     return render_template("auth/login.html")
-
 
 @auth_bp.route("/logout")
 def logout():
     session.clear()
     flash("Sesión cerrada correctamente.", "info")
     return redirect(url_for("auth.login"))
+
+@auth_bp.route("/home")
+def home():
+    return render_template("home.html")
