@@ -42,7 +42,7 @@ def listar_personas():
 
 @personas_bp.route("/create", methods=["GET", "POST"])
 @personal_requerido
-def crear_persona():
+def guardar_persona():
     if request.method == "POST":
         datos = _datos_formulario_persona()
 
@@ -66,7 +66,7 @@ def crear_persona():
 
 @personas_bp.route("/<int:persona_id>/edit", methods=["GET", "POST"])
 @personal_requerido
-def editar_persona(persona_id):
+def actualizar_persona(persona_id):
     persona = Persona.query.get_or_404(persona_id)
 
     if request.method == "POST":

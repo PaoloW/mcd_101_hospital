@@ -12,7 +12,7 @@
             <form
                 method="POST"
                 id="form-atencion"
-                action="{{ url_for('atenciones.editar_atencion', atencion_id=atencion.id) if atencion else url_for('atenciones.crear_atencion') }}"
+                action="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) if atencion else url_for('atenciones.guardar_atencion') }}"
             >
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">

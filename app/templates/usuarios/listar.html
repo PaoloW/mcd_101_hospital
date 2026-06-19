@@ -8,7 +8,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <h2>Usuarios</h2>
             {% if session.get('rol_id') == 1 %}
-                <a href="{{ url_for('usuarios.crear_usuario') }}" class="btn btn-primary">Nuevo usuario</a>
+                <a href="{{ url_for('usuarios.guardar_usuario') }}" class="btn btn-primary">Nuevo usuario</a>
             {% endif %}
         </div>
     </div>
@@ -57,7 +57,7 @@
                         </td>
                         {% if session.get('rol_id') == 1 %}
                         <td class="text-end">
-                            <a href="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                            <a href="{{ url_for('usuarios.actualizar_usuario', usuario_id=usuario.id) }}" class="btn btn-secondary btn-sm">Editar</a>
                             <form method="POST" action="{{ url_for('usuarios.borrar_usuario', usuario_id=usuario.id) }}"
                                 onsubmit="return confirm('¿Eliminar este usuario?');" class="d-inline">
                                 <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>

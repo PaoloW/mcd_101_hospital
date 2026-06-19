@@ -17,7 +17,7 @@ def listar_usuarios():
 
 @usuarios_bp.route("/create", methods=["GET", "POST"])
 @admin_requerido
-def crear_usuario():
+def guardar_usuario():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
@@ -65,7 +65,7 @@ def crear_usuario():
 
 @usuarios_bp.route("/<int:usuario_id>/edit", methods=["GET", "POST"])
 @admin_requerido
-def editar_usuario(usuario_id):
+def actualizar_usuario(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
 
     if request.method == "POST":

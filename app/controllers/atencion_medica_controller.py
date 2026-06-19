@@ -34,7 +34,7 @@ def listar_atenciones():
 
 @atenciones_bp.route("/create", methods=["GET", "POST"])
 @personal_medico_requerido
-def crear_atencion():
+def guardar_atencion():
     tipos_atenciones = TipoAtencion.query.all()
     estados_atenciones = EstadoAtencion.query.all()
     responsables = Usuario.query.filter_by(rol_id=2).all()
@@ -83,7 +83,7 @@ def crear_atencion():
 
 @atenciones_bp.route("/<int:atencion_id>/edit", methods=["GET", "POST"])
 @personal_medico_requerido
-def editar_atencion(atencion_id):
+def actualizar_atencion(atencion_id):
     atencion = AtencionMedica.query.get_or_404(atencion_id)
 
     tipos_atenciones = TipoAtencion.query.all()

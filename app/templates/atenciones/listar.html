@@ -8,7 +8,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <h2>Atenciones</h2>
             {% if session.get('rol_id') in [2, 4] %}
-                <a href="{{ url_for('atenciones.crear_atencion') }}" class="btn btn-primary">Nueva atención</a>
+                <a href="{{ url_for('atenciones.guardar_atencion') }}" class="btn btn-primary">Nueva atención</a>
             {% endif %}
         </div>
     </div>
@@ -37,10 +37,28 @@
                         <td>{{ atencion.estado_atencion.nombre }}</td>
                         {% if session.get('rol_id') in [2, 4] %}
                         <td class="text-end">
-                            <a href="{{ url_for('atenciones.editar_atencion', atencion_id=atencion.id) }}" class="btn btn-secondary btn-sm">Editar</a>
-                            <form method="POST" action="{{ url_for('atenciones.eliminar_atencion', atencion_id=atencion.id) }}"
-                                onsubmit="return confirm('¿Eliminar esta atención?');" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            <form
+                                method="POST"
+                                action="{{ url_for('atenciones.eliminar_atencion', atencion_id=atencion.id) }}"
+                                onsubmit="return confirm('¿Eliminar esta atención?');"
+                                class="d-inline"
+                            >
+                                <div class="dropdown position-static">
+                                    <button
+                                        class="btn btn-secondary btn-sm dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        data-bs-boundary="viewport" 
+                                    >Acciones</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Editar</a>
+                                        </li>
+                                        <li><button type="submit" class="dropdown-item">Eliminar</button></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    </ul>
+                                </div>
                             </form>
                         </td>
                         {% endif %}

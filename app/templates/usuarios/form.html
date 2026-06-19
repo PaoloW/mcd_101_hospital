@@ -12,7 +12,7 @@
             <form
                 method="POST"
                 id="form-usuario"
-                action="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) if usuario else url_for('usuarios.crear_usuario') }}"
+                action="{{ url_for('usuarios.actualizar_usuario', usuario_id=usuario.id) if usuario else url_for('usuarios.guardar_usuario') }}"
             >
                 <div class="row">
                     {% if usuario %}
