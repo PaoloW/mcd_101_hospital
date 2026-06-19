@@ -42,21 +42,32 @@
                         <td>{{ persona.correo or '—' }}</td>
                         {% if session.get('rol_id') == 1 %}
                         <td class="text-end">
-                            <a href="{{ url_for('personas.ver_persona', persona_id=persona.id) }}" class="btn btn-info btn-sm">
-                                <span class="d-none d-lg-inline">Ver</span>
-                                <span class="d-lg-none">👁</span>
-                            </a>
-                            <a href="{{ url_for('personas.actualizar_persona', persona_id=persona.id) }}" class="btn btn-secondary btn-sm">
-                                <span class="d-none d-lg-inline">Editar</span>
-                                <span class="d-lg-none">✎</span>
-                            </a>
-                            <form method="POST" action="{{ url_for('personas.eliminar_persona', persona_id=persona.id) }}"
-                                onsubmit="return confirm('¿Eliminar esta persona?');" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <span class="d-none d-lg-inline">Eliminar</span>
-                                    <span class="d-lg-none">✕</span>
-                                </button>
-                            </form>
+                            <div class="dropdown position-static">
+                                <button
+                                    class="btn btn-secondary btn-sm dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    data-bs-boundary="viewport"
+                                >
+                                    <span class="d-none d-lg-inline">Acciones</span>
+                                    <span class="d-lg-none">⚙︎</span></button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a href="{{ url_for('personas.ver_persona', persona_id=persona.id) }}" class="dropdown-item">Ver</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url_for('personas.actualizar_persona', persona_id=persona.id) }}" class="dropdown-item">Editar</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ url_for('personas.eliminar_persona', persona_id=persona.id) }}"
+                                            onsubmit="return confirm('¿Eliminar esta persona?');">
+                                            <button type="submit" class="dropdown-item">Eliminar</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                         {% endif %}
                     </tr>

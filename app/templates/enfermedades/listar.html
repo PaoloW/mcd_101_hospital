@@ -31,21 +31,33 @@
                         <td>{{ enfermedad.nombre }}</td>
                         <td>{{ enfermedad.codigo_cie10 or '—' }}</td>
                         <td class="text-end">
-                            <a href="{{ url_for('enfermedades.ver_enfermedad', enfermedad_id=enfermedad.id) }}" class="btn btn-info btn-sm">
-                                <span class="d-none d-lg-inline">Ver</span>
-                                <span class="d-lg-none">👁</span>
-                            </a>
-                            <a href="{{ url_for('enfermedades.actualizar_enfermedad', enfermedad_id=enfermedad.id) }}" class="btn btn-secondary btn-sm">
-                                <span class="d-none d-lg-inline">Editar</span>
-                                <span class="d-lg-none">✎</span>
-                            </a>
-                            <form method="POST" action="{{ url_for('enfermedades.eliminar_enfermedad', enfermedad_id=enfermedad.id) }}"
-                                onsubmit="return confirm('¿Eliminar esta enfermedad?');" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <span class="d-none d-lg-inline">Eliminar</span>
-                                    <span class="d-lg-none">✕</span>
+                            <div class="dropdown position-static">
+                                <button
+                                    class="btn btn-secondary btn-sm dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    data-bs-boundary="viewport"
+                                >
+                                    <span class="d-none d-lg-inline">Acciones</span>
+                                    <span class="d-lg-none">⚙︎</span>
                                 </button>
-                            </form>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a href="{{ url_for('enfermedades.ver_enfermedad', enfermedad_id=enfermedad.id) }}" class="dropdown-item">Ver</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url_for('enfermedades.actualizar_enfermedad', enfermedad_id=enfermedad.id) }}" class="dropdown-item">Editar</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ url_for('enfermedades.eliminar_enfermedad', enfermedad_id=enfermedad.id) }}"
+                                            onsubmit="return confirm('¿Eliminar esta enfermedad?');">
+                                            <button type="submit" class="dropdown-item">Eliminar</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                     {% else %}

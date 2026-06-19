@@ -51,24 +51,18 @@
                                         data-bs-toggle="dropdown"
                                         aria-expanded="false"
                                         data-bs-boundary="viewport" 
-                                    >Acciones</button>
+                                    >
+                                        <span class="d-none d-lg-inline">Acciones</span>
+                                        <span class="d-lg-none">⚙︎</span>
+                                    </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <a href="{{ url_for('atenciones.ver_atencion', atencion_id=atencion.id) }}" class="dropdown-item">
-                                                <span class="d-none d-lg-inline">Ver</span>
-                                                <span class="d-lg-none">👁</span>
-                                            </a>
+                                            <a href="{{ url_for('atenciones.ver_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Ver</a>
                                         </li>
                                         <li>
-                                            <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">
-                                                <span class="d-none d-lg-inline">Editar</span>
-                                                <span class="d-lg-none">✎</span>
-                                            </a>
+                                            <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Editar</a>
                                         </li>
-                                        <li><button type="submit" class="dropdown-item">
-                                            <span class="d-none d-lg-inline">Eliminar</span>
-                                            <span class="d-lg-none">✕</span>
-                                        </button></li>
+                                        <li><button type="submit" class="dropdown-item">Eliminar</li>
                                         <li><hr class="dropdown-divider"></li>
                                     </ul>
                                 </div>
