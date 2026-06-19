@@ -37,9 +37,17 @@ def _datos_formulario_parametro():
 @personal_requerido
 def listar_parametros():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = Parametro.query.order_by(Parametro.id.desc())
+    if busqueda:
+        filtro = (
+            Parametro.nombre.ilike(f"%{busqueda}%")
+            | Parametro.unidad_medida.ilike(f"%{busqueda}%")
+            | Parametro.observacion.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("parametros/listar.html", pagination=pagination, parametros=pagination.items)
+    return render_template("parametros/listar.html", pagination=pagination, parametros=pagination.items, busqueda=busqueda)
 
 
 @parametros_bp.route("/create", methods=["GET", "POST"])

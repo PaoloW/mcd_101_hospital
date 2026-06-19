@@ -23,9 +23,18 @@ def _datos_formulario_medicamento():
 @personal_requerido
 def listar_medicamentos():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = Medicamento.query.order_by(Medicamento.id.desc())
+    if busqueda:
+        filtro = (
+            Medicamento.codigo.ilike(f"%{busqueda}%")
+            | Medicamento.denominacion.ilike(f"%{busqueda}%")
+            | Medicamento.especificaciones_tecnicas.ilike(f"%{busqueda}%")
+            | Medicamento.unidad_medida.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("medicamentos/listar.html", pagination=pagination, medicamentos=pagination.items)
+    return render_template("medicamentos/listar.html", pagination=pagination, medicamentos=pagination.items, busqueda=busqueda)
 
 
 @medicamentos_bp.route("/create", methods=["GET", "POST"])

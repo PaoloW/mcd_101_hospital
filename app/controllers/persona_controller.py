@@ -39,9 +39,19 @@ def _datos_formulario_persona():
 @personal_requerido
 def listar_personas():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = Persona.query.order_by(Persona.id.desc())
+    if busqueda:
+        filtro = (
+            Persona.numero_documento.ilike(f"%{busqueda}%")
+            | Persona.nombre_completo.ilike(f"%{busqueda}%")
+            | Persona.sexo.ilike(f"%{busqueda}%")
+            | Persona.telefono.ilike(f"%{busqueda}%")
+            | Persona.correo.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("personas/listar.html", pagination=pagination, personas=pagination.items)
+    return render_template("personas/listar.html", pagination=pagination, personas=pagination.items, busqueda=busqueda)
 
 
 @personas_bp.route("/create", methods=["GET", "POST"])

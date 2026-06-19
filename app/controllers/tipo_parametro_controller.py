@@ -20,9 +20,13 @@ def _datos_formulario_tipo_parametro():
 @personal_requerido
 def listar_tipos_parametros():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = TipoParametro.query.order_by(TipoParametro.id.desc())
+    if busqueda:
+        filtro = TipoParametro.nombre.ilike(f"%{busqueda}%")
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("tipos_parametros/listar.html", pagination=pagination, tipos=pagination.items)
+    return render_template("tipos_parametros/listar.html", pagination=pagination, tipos=pagination.items, busqueda=busqueda)
 
 
 @tipos_parametros_bp.route("/create", methods=["GET", "POST"])

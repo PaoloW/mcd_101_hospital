@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_pagination.html" import pagination_info %}
+{% from "_busqueda.html" import campo_busqueda %}
 
 {% block title %}Parámetros — Hospital{% endblock %}
 
@@ -8,21 +9,22 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Parámetros</h2>
-            <a href="{{ url_for('parametros.guardar_parametro') }}" class="btn btn-primary">Nuevo parámetro</a>
+            <a href="{{ url_for('parametros.guardar_parametro') }}" class="btn btn-primary">Nuevo</a>
         </div>
     </div>
     <div class="card-body">
+        {{ campo_busqueda(busqueda) }}
         <div class="table-responsive">
             <table id="table" class="table table-sm table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Tipo</th>
-                        <th>Ref. mín.</th>
-                        <th>Ref. máx.</th>
-                        <th>Unidad</th>
-                        <th class="text-end">Acciones</th>
+                        <th width="10%">ID</th>
+                        <th width="30%">Nombre</th>
+                        <th width="10%">Tipo</th>
+                        <th width="10%">Ref. mín.</th>
+                        <th width="10%">Ref. máx.</th>
+                        <th width="10%">Unidad</th>
+                        <th width="20%" class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
@@ -35,10 +37,16 @@
                         <td>{{ parametro.valor_referencia_max if parametro.valor_referencia_max is not none else '—' }}</td>
                         <td>{{ parametro.unidad_medida or '—' }}</td>
                         <td class="text-end">
-                            <a href="{{ url_for('parametros.actualizar_parametro', parametro_id=parametro.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                            <a href="{{ url_for('parametros.actualizar_parametro', parametro_id=parametro.id) }}" class="btn btn-secondary btn-sm">
+                                <span class="d-none d-lg-inline">Editar</span>
+                                <span class="d-lg-none">✎</span>
+                            </a>
                             <form method="POST" action="{{ url_for('parametros.eliminar_parametro', parametro_id=parametro.id) }}"
                                 onsubmit="return confirm('¿Eliminar este parámetro?');" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <span class="d-none d-lg-inline">Eliminar</span>
+                                    <span class="d-lg-none">✕</span>
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -50,7 +58,7 @@
                 </tbody>
             </table>
         </div>
-        {{ pagination_info(pagination) }}
+        {{ pagination_info(pagination, busqueda) }}
     </div>
 </div>
 {% endblock %}

@@ -30,9 +30,13 @@ def _datos_formulario_atencion():
 @personal_medico_requerido
 def listar_atenciones():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = AtencionMedica.query.order_by(AtencionMedica.id.desc())
+    if busqueda:
+        filtro = AtencionMedica.observacion.ilike(f"%{busqueda}%")
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("atenciones/listar.html", pagination=pagination, atenciones=pagination.items)
+    return render_template("atenciones/listar.html", pagination=pagination, atenciones=pagination.items, busqueda=busqueda)
 
 
 @atenciones_bp.route("/create", methods=["GET", "POST"])

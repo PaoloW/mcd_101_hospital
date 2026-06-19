@@ -14,9 +14,15 @@ PER_PAGE = 20
 @admin_requerido
 def listar_usuarios():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = Usuario.query.order_by(Usuario.id.desc())
+    if busqueda:
+        filtro = (
+            Usuario.username.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("usuarios/listar.html", pagination=pagination, usuarios=pagination.items)
+    return render_template("usuarios/listar.html", pagination=pagination, usuarios=pagination.items, busqueda=busqueda)
 
 
 @usuarios_bp.route("/create", methods=["GET", "POST"])

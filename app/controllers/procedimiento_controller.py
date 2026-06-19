@@ -23,9 +23,16 @@ def _datos_formulario_procedimiento():
 @personal_requerido
 def listar_procedimientos():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = Procedimiento.query.order_by(Procedimiento.id.desc())
+    if busqueda:
+        filtro = (
+            Procedimiento.codigo_cpms.ilike(f"%{busqueda}%")
+            | Procedimiento.nombre.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("procedimientos/listar.html", pagination=pagination, procedimientos=pagination.items)
+    return render_template("procedimientos/listar.html", pagination=pagination, procedimientos=pagination.items, busqueda=busqueda)
 
 
 @procedimientos_bp.route("/create", methods=["GET", "POST"])

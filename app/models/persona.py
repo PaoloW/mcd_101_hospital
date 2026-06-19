@@ -1,4 +1,6 @@
 from app.extensions import db
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql.functions import func
 
 
 class Persona(db.Model):
@@ -15,10 +17,23 @@ class Persona(db.Model):
     telefono = db.Column(db.String(100))
     correo = db.Column(db.String(100))
 
-    @property
+    @hybrid_property
     def nombre_completo(self) -> str:
+        """Comportamiento en Python (cuando ya tienes el objeto en memoria)"""
         partes = [self.nombres, self.primer_apellido, self.segundo_apellido]
         return " ".join(parte for parte in partes if parte)
+
+    @nombre_completo.expression
+    def nombre_completo(cls):
+        """Comportamiento en SQL (cuando haces queries/filtros en la base de datos)"""
+        # func.concat_ws une los textos usando un espacio ' ' eliminando nulos automáticamente
+        return func.concat_ws(
+            " ",
+            func.nullif(cls.nombres, ""),
+            func.nullif(cls.primer_apellido, ""),
+            func.nullif(cls.segundo_apellido, ""),
+        )
+
 
     def to_dict(self) -> dict:
         return {

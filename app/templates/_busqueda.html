@@ -1,0 +1,21 @@
+{% macro campo_busqueda(busqueda) %}
+<form method="GET" id="form-busqueda">
+    <div class="row">
+        <div class="col">
+            <div class="input-group">
+                <input
+                    type="text"
+                    name="busqueda"
+                    class="form-control"
+                    placeholder="Buscar..."
+                    value="{{ busqueda or '' }}"
+                >
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                {% if busqueda %}
+                <a href="?" class="btn btn-outline-secondary">Limpiar</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</form>
+{% endmacro %}

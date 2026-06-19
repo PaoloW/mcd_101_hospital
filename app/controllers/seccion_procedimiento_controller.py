@@ -25,9 +25,16 @@ def _datos_formulario_seccion():
 @personal_requerido
 def listar_secciones():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = SeccionProcedimiento.query.order_by(SeccionProcedimiento.id.desc())
+    if busqueda:
+        filtro = (
+            SeccionProcedimiento.nombre.ilike(f"%{busqueda}%")
+            | SeccionProcedimiento.codigo.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("secciones_procedimientos/listar.html", pagination=pagination, secciones=pagination.items)
+    return render_template("secciones_procedimientos/listar.html", pagination=pagination, secciones=pagination.items, busqueda=busqueda)
 
 
 @secciones_procedimientos_bp.route("/create", methods=["GET", "POST"])

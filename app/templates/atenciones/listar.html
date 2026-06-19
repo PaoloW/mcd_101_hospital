@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_pagination.html" import pagination_info %}
+{% from "_busqueda.html" import campo_busqueda %}
 
 {% block title %}Atenciones — Hospital{% endblock %}
 
@@ -9,23 +10,22 @@
         <div class="d-flex justify-content-between align-items-center">
             <h2>Atenciones</h2>
             {% if session.get('rol_id') in [2, 4] %}
-                <a href="{{ url_for('atenciones.guardar_atencion') }}" class="btn btn-primary">Nueva atención</a>
+                <a href="{{ url_for('atenciones.guardar_atencion') }}" class="btn btn-primary">Nueva</a>
             {% endif %}
         </div>
     </div>
     <div class="card-body">
+        {{ campo_busqueda(busqueda) }}
         <div class="table-responsive">
             <table id="table" class="table table-sm table-striped table-hover" style="min-width: 600px">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Paciente</th>
-                        <th>Estado</th>
-                        {% if session.get('rol_id') == 1 %}
-                            <th class="text-end">Acciones</th>
-                        {% endif %}
+                        <th width="10%">ID</th>
+                        <th width="15%">Fecha</th>
+                        <th width="15%">Tipo</th>
+                        <th width="35%">Paciente</th>
+                        <th width="15%">Estado</th>
+                        <th width="20%" class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
@@ -36,8 +36,8 @@
                         <td>{{ atencion.tipo_atencion.nombre }}</td>
                         <td>{{ atencion.paciente.nombre_completo }}</td>
                         <td>{{ atencion.estado_atencion.nombre }}</td>
-                        {% if session.get('rol_id') in [2, 4] %}
                         <td class="text-end">
+                            {% if session.get('rol_id') in [2, 4] %}
                             <form
                                 method="POST"
                                 action="{{ url_for('atenciones.eliminar_atencion', atencion_id=atencion.id) }}"
@@ -54,15 +54,21 @@
                                     >Acciones</button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Editar</a>
+                                            <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">
+                                                <span class="d-none d-lg-inline">Editar</span>
+                                                <span class="d-lg-none">✎</span>
+                                            </a>
                                         </li>
-                                        <li><button type="submit" class="dropdown-item">Eliminar</button></li>
+                                        <li><button type="submit" class="dropdown-item">
+                                            <span class="d-none d-lg-inline">Eliminar</span>
+                                            <span class="d-lg-none">✕</span>
+                                        </button></li>
                                         <li><hr class="dropdown-divider"></li>
                                     </ul>
                                 </div>
                             </form>
+                            {% endif %}
                         </td>
-                        {% endif %}
                     </tr>
                     {% else %}
                     <tr>
@@ -72,7 +78,7 @@
                 </tbody>
             </table>
         </div>
-        {{ pagination_info(pagination) }}
+        {{ pagination_info(pagination, busqueda) }}
     </div>
 </div>
 {% endblock %}

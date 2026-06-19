@@ -21,9 +21,16 @@ def _datos_formulario_enfermedad():
 @personal_requerido
 def listar_enfermedades():
     page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
     query = Enfermedad.query.order_by(Enfermedad.id.desc())
+    if busqueda:
+        filtro = (
+            Enfermedad.nombre.ilike(f"%{busqueda}%")
+            | Enfermedad.codigo_cie10.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
-    return render_template("enfermedades/listar.html", pagination=pagination, enfermedades=pagination.items)
+    return render_template("enfermedades/listar.html", pagination=pagination, enfermedades=pagination.items, busqueda=busqueda)
 
 
 @enfermedades_bp.route("/create", methods=["GET", "POST"])
