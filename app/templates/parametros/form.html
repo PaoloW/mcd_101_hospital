@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if parametro else 'Nuevo' }} parámetro — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2 class="mb-0">{{ 'Editar' if parametro else 'Nuevo' }} parámetro</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST"
+                action="{{ url_for('parametros.actualizar_parametro', parametro_id=parametro.id) if parametro else url_for('parametros.guardar_parametro') }}">
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="tipo_parametro_id">Tipo de parámetro</label>
+                        <select id="tipo_parametro_id" name="tipo_parametro_id" class="form-select" required>
+                            <option value="">— Seleccionar —</option>
+                            {% for tipo in tipos %}
+                            <option value="{{ tipo.id }}"
+                                {{ 'selected' if parametro and parametro.tipo_parametro_id == tipo.id else '' }}>
+                                {{ tipo.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="nombre">Nombre</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control"
+                            value="{{ parametro.nombre if parametro else '' }}" maxlength="255" required>
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label" for="valor_referencia_min">Valor referencia mínimo</label>
+                        <input type="number" step="0.01" id="valor_referencia_min" name="valor_referencia_min" class="form-control"
+                            value="{{ parametro.valor_referencia_min if parametro and parametro.valor_referencia_min is not none else '' }}">
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label" for="valor_referencia_max">Valor referencia máximo</label>
+                        <input type="number" step="0.01" id="valor_referencia_max" name="valor_referencia_max" class="form-control"
+                            value="{{ parametro.valor_referencia_max if parametro and parametro.valor_referencia_max is not none else '' }}">
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label" for="unidad_medida">Unidad de medida</label>
+                        <input type="text" id="unidad_medida" name="unidad_medida" class="form-control"
+                            value="{{ parametro.unidad_medida if parametro else '' }}" maxlength="255">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label" for="observacion">Observación</label>
+                        <textarea id="observacion" name="observacion" class="form-control" rows="3">{{ parametro.observacion if parametro else '' }}</textarea>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a href="{{ url_for('parametros.listar_parametros') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

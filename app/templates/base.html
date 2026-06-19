@@ -30,6 +30,24 @@
                                 <a class="nav-link" href="{{ url_for('usuarios.listar_usuarios') }}">Usuarios</a>
                             </li>
                         {% endif %}
+                        {% if session.get('rol_id') in [2, 4, 5] %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarCatalogos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Catálogos
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarCatalogos">
+                                    <li><a class="dropdown-item" href="{{ url_for('enfermedades.listar_enfermedades') }}">Enfermedades</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('secciones_procedimientos.listar_secciones') }}">Secciones de procedimientos</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('procedimientos.listar_procedimientos') }}">Procedimientos</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('medicamentos.listar_medicamentos') }}">Medicamentos</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('tipos_parametros.listar_tipos_parametros') }}">Tipos de parámetros</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('parametros.listar_parametros') }}">Parámetros</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">

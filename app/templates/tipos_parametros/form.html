@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if tipo else 'Nuevo' }} tipo de parámetro — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-8">
+        <div class="card-header">
+            <h2 class="mb-0">{{ 'Editar' if tipo else 'Nuevo' }} tipo de parámetro</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST"
+                action="{{ url_for('tipos_parametros.actualizar_tipo_parametro', tipo_id=tipo.id) if tipo else url_for('tipos_parametros.guardar_tipo_parametro') }}">
+                <div class="mb-3">
+                    <label class="form-label" for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control"
+                        value="{{ tipo.nombre if tipo else '' }}" maxlength="255" required>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a href="{{ url_for('tipos_parametros.listar_tipos_parametros') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

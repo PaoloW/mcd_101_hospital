@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if enfermedad else 'Nueva' }} enfermedad — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-8">
+        <div class="card-header">
+            <h2 class="mb-0">{{ 'Editar' if enfermedad else 'Nueva' }} enfermedad</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST"
+                action="{{ url_for('enfermedades.actualizar_enfermedad', enfermedad_id=enfermedad.id) if enfermedad else url_for('enfermedades.guardar_enfermedad') }}">
+                <div class="mb-3">
+                    <label class="form-label" for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control"
+                        value="{{ enfermedad.nombre if enfermedad else '' }}" maxlength="512" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="codigo_cie10">Código CIE-10</label>
+                    <input type="text" id="codigo_cie10" name="codigo_cie10" class="form-control"
+                        value="{{ enfermedad.codigo_cie10 if enfermedad else '' }}" maxlength="7">
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a href="{{ url_for('enfermedades.listar_enfermedades') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
