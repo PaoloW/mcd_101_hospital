@@ -1,0 +1,46 @@
+{% from "_selector_modal.html" import selector_modal, script_selector_modal %}
+
+{% extends "base.html" %}
+
+{% block title %}{% if solo_lectura %}Ver{% elif prescripcion %}Editar{% else %}Nuevo{% endif %} Prescripción — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if solo_lectura %}Ver{% elif prescripcion %}Editar{% else %}Nuevo{% endif %} Prescripción</h2>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
+        <form method="POST">
+            {{ selector_modal(
+                items=medicamentos,
+                id_campo='medicamento_id',
+                nombre_campo='medicamento_nombre',
+                placeholder='Buscar medicamento...',
+                columnas=['Código', 'Denominación', 'Unidad'],
+                datos=['codigo', 'denominacion', 'unidad_medida'],
+                propiedad_principal='nombre',
+                disabled=solo_lectura
+            ) }}
+            <div class="mb-3">
+                <label for="dosis" class="form-label">Dosis</label>
+                <input type="text" class="form-control" id="dosis" name="dosis" value="{{ prescripcion.dosis if prescripcion else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ prescripcion.fecha.strftime('%Y-%m-%d') if prescripcion and prescripcion.fecha else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" step="any" class="form-control" id="cantidad" name="cantidad" value="{{ prescripcion.cantidad if prescripcion and prescripcion.cantidad else '' }}" {% if solo_lectura %}disabled{% endif %}>
+            </div>
+            {% if not solo_lectura %}
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="btn btn-secondary">Cancelar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{{ script_selector_modal(id_campo='medicamento_id') }}
+{% endblock %}

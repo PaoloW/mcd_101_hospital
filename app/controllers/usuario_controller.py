@@ -7,12 +7,22 @@ from app.models.usuario import Usuario
 
 usuarios_bp = Blueprint("usuarios", __name__, url_prefix="/usuarios")
 
+PER_PAGE = 20
+
 
 @usuarios_bp.route("/")
 @admin_requerido
 def listar_usuarios():
-    usuarios = Usuario.query.order_by(Usuario.id).all()
-    return render_template("usuarios/listar.html", usuarios=usuarios)
+    page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
+    query = Usuario.query.order_by(Usuario.id.desc())
+    if busqueda:
+        filtro = (
+            Usuario.username.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("usuarios/listar.html", pagination=pagination, usuarios=pagination.items, busqueda=busqueda)
 
 
 @usuarios_bp.route("/create", methods=["GET", "POST"])
@@ -61,6 +71,13 @@ def guardar_usuario():
         return redirect(url_for("usuarios.listar_usuarios"))
 
     return render_template("usuarios/form.html", usuario=None)
+
+
+@usuarios_bp.route("/<int:usuario_id>/ver")
+@admin_requerido
+def ver_usuario(usuario_id):
+    usuario = Usuario.query.get_or_404(usuario_id)
+    return render_template("usuarios/form.html", usuario=usuario, solo_lectura=True)
 
 
 @usuarios_bp.route("/<int:usuario_id>/edit", methods=["GET", "POST"])

@@ -1,28 +1,35 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if seccion else 'Nueva' }} sección — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if seccion else 'Nueva') }} sección — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-8">
         <div class="card-header">
-            <h2 class="mb-0">{{ 'Editar' if seccion else 'Nueva' }} sección de procedimiento</h2>
+            <h2 class="mb-0">{{ 'Ver' if solo_lectura else ('Editar' if seccion else 'Nueva') }} sección de procedimiento</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form method="POST"
-                action="{{ url_for('secciones_procedimientos.actualizar_seccion', seccion_id=seccion.id) if seccion else url_for('secciones_procedimientos.guardar_seccion') }}">
+                action="{{ url_for('secciones_procedimientos.actualizar_seccion', seccion_id=seccion.id) if seccion and not solo_lectura else url_for('secciones_procedimientos.guardar_seccion') }}">
                 <div class="mb-3">
                     <label class="form-label" for="codigo">Código</label>
                     <input type="text" id="codigo" name="codigo" class="form-control"
-                        value="{{ seccion.codigo if seccion else '' }}" maxlength="4">
+                        value="{{ seccion.codigo if seccion else '' }}" maxlength="4"
+                        {{ 'disabled' if solo_lectura else '' }}>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="nombre">Nombre</label>
                     <input type="text" id="nombre" name="nombre" class="form-control"
-                        value="{{ seccion.nombre if seccion else '' }}" maxlength="255" required>
+                        value="{{ seccion.nombre if seccion else '' }}" maxlength="255"
+                        {{ 'disabled' if solo_lectura else '' }}
+                        {{ 'required' if not solo_lectura else '' }}>
                 </div>
                 <div class="text-end">
+                    {% if not solo_lectura %}
                     <button type="submit" class="btn btn-primary">Guardar</button>
+                    {% endif %}
                     <a href="{{ url_for('secciones_procedimientos.listar_secciones') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>

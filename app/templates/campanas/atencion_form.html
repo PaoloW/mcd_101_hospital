@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva atención - {{ campana.nombre }} — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2>Nueva atención - {{ campana.nombre }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <strong>Campaña:</strong> {{ campana.nombre }}<br>
+                <strong>Periodo:</strong> {{ campana.desde.strftime('%Y-%m-%d') }} al {{ campana.hasta.strftime('%Y-%m-%d') }}
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label" for="paciente_id">Paciente</label>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="paciente_documento"
+                            maxlength="15"
+                            class="form-control"
+                            placeholder="Ingrese el número de documento"
+                        >
+                        <button type="button" id="btn-buscar-paciente" class="btn btn-secondary">Buscar</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div id="mensaje-resultado" class="alert alert-secondary">Busque al paciente por su documento.</div>
+                </div>
+                <input type="hidden" id="paciente_id" name="paciente_id" value="">
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="fecha_hora">Fecha y hora</label>
+                        <input
+                            type="datetime-local"
+                            id="fecha_hora"
+                            name="fecha_hora"
+                            value="{{ ahora.strftime('%Y-%m-%dT%H:%M') }}"
+                            class="form-control"
+                            required>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="responsable_id">Responsable</label>
+                        <select
+                            id="responsable_id"
+                            name="responsable_id"
+                            class="form-select"
+                            required>
+                            <option value="">Seleccionar</option>
+                            {% for responsable in responsables %}
+                                <option value="{{ responsable.id }}">{{ responsable.persona.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="observacion">Observación</label>
+                    <textarea
+                        class="form-control"
+                        id="observacion"
+                        name="observacion"
+                        rows="3">{{ campana.objetivo or '' }}</textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a href="{{ url_for('campanas.listar_atenciones_campana', campana_id=campana.id) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const inputDocumento = document.getElementById('paciente_documento');
+    const btnBuscar = document.getElementById('btn-buscar-paciente');
+    const mensaje_resultado = document.getElementById('mensaje-resultado');
+    const inputPacienteId = document.getElementById('paciente_id');
+    const urlBusqueda = "{{ url_for('personas.buscar_por_documento') }}";
+
+    function limpiarBusqueda() {
+        inputPacienteId.value = '';
+        mensaje_resultado.className = 'alert alert-secondary';
+    }
+
+    async function buscarPersona() {
+        const documento = inputDocumento.value.trim();
+        limpiarBusqueda();
+
+        if (!documento) {
+            mensaje_resultado.innerHTML = 'Ingrese un número de documento.';
+            mensaje_resultado.className = 'alert alert-danger';
+            return;
+        }
+
+        try {
+            const respuesta = await fetch(`${urlBusqueda}?documento=${encodeURIComponent(documento)}`);
+            const datos = await respuesta.json();
+
+            if (!datos.encontrado) {
+                mensaje_resultado.innerHTML = datos.mensaje;
+                mensaje_resultado.className = 'alert alert-danger';
+                return;
+            }
+
+            inputPacienteId.value = datos.id;
+            mensaje_resultado.innerHTML = datos.nombre_completo || datos.numero_documento;
+            mensaje_resultado.className = 'alert alert-success';
+        } catch (error) {
+            mensaje_resultado.innerHTML = 'Error al buscar el paciente.';
+            mensaje_resultado.className = 'alert alert-danger';
+        }
+    }
+
+    btnBuscar.addEventListener('click', buscarPersona);
+    inputDocumento.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Enter') {
+            evento.preventDefault();
+            buscarPersona();
+        }
+    });
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (evento) {
+        if (!inputPacienteId.value) {
+            evento.preventDefault();
+            mensaje_resultado.innerHTML = 'Debe buscar y seleccionar un paciente antes de guardar.';
+            mensaje_resultado.className = 'alert alert-danger';
+        }
+    });
+})();
+</script>
+{% endblock %}

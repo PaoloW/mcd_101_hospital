@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from "_pagination.html" import pagination_info %}
+{% from "_busqueda.html" import campo_busqueda %}
 
 {% block title %}Atenciones — Hospital{% endblock %}
 
@@ -8,35 +10,34 @@
         <div class="d-flex justify-content-between align-items-center">
             <h2>Atenciones</h2>
             {% if session.get('rol_id') in [2, 4] %}
-                <a href="{{ url_for('atenciones.guardar_atencion') }}" class="btn btn-primary">Nueva atención</a>
+                <a href="{{ url_for('atenciones.guardar_atencion') }}" class="btn btn-primary">Nueva</a>
             {% endif %}
         </div>
     </div>
     <div class="card-body">
+        {{ campo_busqueda(busqueda) }}
         <div class="table-responsive">
-            <table class="table table-sm table-striped table-hover" style="min-width: 600px">
+            <table id="table" class="table table-sm table-striped table-hover" style="min-width: 600px">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Paciente</th>
-                        <th>Estado</th>
-                        {% if session.get('rol_id') == 1 %}
-                            <th class="text-end">Acciones</th>
-                        {% endif %}
+                        <th width="10%">ID</th>
+                        <th width="15%">Fecha</th>
+                        <th width="15%">Tipo</th>
+                        <th width="35%">Paciente</th>
+                        <th width="15%">Estado</th>
+                        <th width="20%" class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
                     {% for atencion in atenciones %}
                     <tr>
                         <td>{{ atencion.id }}</td>
-                        <td>{{ atencion.fecha_hora.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ atencion.fecha_hora.strftime('%Y-%m-%d %H:%M') if atencion.fecha_hora is not string else atencion.fecha_hora }}</td>
                         <td>{{ atencion.tipo_atencion.nombre }}</td>
                         <td>{{ atencion.paciente.nombre_completo }}</td>
                         <td>{{ atencion.estado_atencion.nombre }}</td>
-                        {% if session.get('rol_id') in [2, 4] %}
                         <td class="text-end">
+                            {% if session.get('rol_id') in [2, 4] %}
                             <form
                                 method="POST"
                                 action="{{ url_for('atenciones.eliminar_atencion', atencion_id=atencion.id) }}"
@@ -50,18 +51,38 @@
                                         data-bs-toggle="dropdown"
                                         aria-expanded="false"
                                         data-bs-boundary="viewport" 
-                                    >Acciones</button>
+                                    >
+                                        <span class="d-none d-lg-inline">Acciones</span>
+                                        <span class="d-lg-none">⚙︎</span>
+                                    </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{{ url_for('atenciones.ver_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Ver</a>
+                                        </li>
                                         <li>
                                             <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Editar</a>
                                         </li>
-                                        <li><button type="submit" class="dropdown-item">Eliminar</button></li>
                                         <li><hr class="dropdown-divider"></li>
+                                        <li><h6 class="dropdown-header">Registros médicos</h6></li>
+                                        <li>
+                                            <a href="{{ url_for('analisis.listar_analisis', atencion_id=atencion.id) }}" class="dropdown-item">Análisis</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('diagnosticos.listar_diagnosticos', atencion_id=atencion.id) }}" class="dropdown-item">Diagnósticos</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="dropdown-item">Prescripciones</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="dropdown-item">Procedimientos realizados</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><button type="submit" class="dropdown-item">Eliminar</li>
                                     </ul>
                                 </div>
                             </form>
+                            {% endif %}
                         </td>
-                        {% endif %}
                     </tr>
                     {% else %}
                     <tr>
@@ -71,6 +92,7 @@
                 </tbody>
             </table>
         </div>
+        {{ pagination_info(pagination, busqueda) }}
     </div>
 </div>
 {% endblock %}

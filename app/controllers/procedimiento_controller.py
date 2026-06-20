@@ -8,6 +8,8 @@ from app.models.seccion_procedimiento import SeccionProcedimiento
 
 procedimientos_bp = Blueprint("procedimientos", __name__, url_prefix="/procedimientos")
 
+PER_PAGE = 20
+
 
 def _datos_formulario_procedimiento():
     return {
@@ -20,8 +22,17 @@ def _datos_formulario_procedimiento():
 @procedimientos_bp.route("/")
 @personal_requerido
 def listar_procedimientos():
-    procedimientos = Procedimiento.query.order_by(Procedimiento.nombre).all()
-    return render_template("procedimientos/listar.html", procedimientos=procedimientos)
+    page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
+    query = Procedimiento.query.order_by(Procedimiento.id.desc())
+    if busqueda:
+        filtro = (
+            Procedimiento.codigo_cpms.ilike(f"%{busqueda}%")
+            | Procedimiento.nombre.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("procedimientos/listar.html", pagination=pagination, procedimientos=pagination.items, busqueda=busqueda)
 
 
 @procedimientos_bp.route("/create", methods=["GET", "POST"])
@@ -68,6 +79,14 @@ def guardar_procedimiento():
         procedimiento=None,
         secciones=secciones,
     )
+
+
+@procedimientos_bp.route("/<int:procedimiento_id>/ver")
+@personal_requerido
+def ver_procedimiento(procedimiento_id):
+    procedimiento = Procedimiento.query.get_or_404(procedimiento_id)
+    secciones = SeccionProcedimiento.query.order_by(SeccionProcedimiento.nombre).all()
+    return render_template("procedimientos/form.html", procedimiento=procedimiento, secciones=secciones, solo_lectura=True)
 
 
 @procedimientos_bp.route("/<int:procedimiento_id>/edit", methods=["GET", "POST"])

@@ -7,6 +7,8 @@ from app.models.enfermedad import Enfermedad
 
 enfermedades_bp = Blueprint("enfermedades", __name__, url_prefix="/enfermedades")
 
+PER_PAGE = 20
+
 
 def _datos_formulario_enfermedad():
     return {
@@ -18,8 +20,17 @@ def _datos_formulario_enfermedad():
 @enfermedades_bp.route("/")
 @personal_requerido
 def listar_enfermedades():
-    enfermedades = Enfermedad.query.order_by(Enfermedad.nombre).all()
-    return render_template("enfermedades/listar.html", enfermedades=enfermedades)
+    page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
+    query = Enfermedad.query.order_by(Enfermedad.id.desc())
+    if busqueda:
+        filtro = (
+            Enfermedad.nombre.ilike(f"%{busqueda}%")
+            | Enfermedad.codigo_cie10.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("enfermedades/listar.html", pagination=pagination, enfermedades=pagination.items, busqueda=busqueda)
 
 
 @enfermedades_bp.route("/create", methods=["GET", "POST"])
@@ -40,6 +51,13 @@ def guardar_enfermedad():
         return redirect(url_for("enfermedades.listar_enfermedades"))
 
     return render_template("enfermedades/form.html", enfermedad=None)
+
+
+@enfermedades_bp.route("/<int:enfermedad_id>/ver")
+@personal_requerido
+def ver_enfermedad(enfermedad_id):
+    enfermedad = Enfermedad.query.get_or_404(enfermedad_id)
+    return render_template("enfermedades/form.html", enfermedad=enfermedad, solo_lectura=True)
 
 
 @enfermedades_bp.route("/<int:enfermedad_id>/edit", methods=["GET", "POST"])

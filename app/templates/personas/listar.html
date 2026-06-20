@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from "_pagination.html" import pagination_info %}
+{% from "_busqueda.html" import campo_busqueda %}
 
 {% block title %}Personas — Hospital{% endblock %}
 
@@ -8,23 +10,24 @@
         <div class="d-flex justify-content-between align-items-center">
             <h2>Personas</h2>
             {% if session.get('rol_id') == 1 %}
-                <a href="{{ url_for('personas.guardar_persona') }}" class="btn btn-primary">Nueva persona</a>
+                <a href="{{ url_for('personas.guardar_persona') }}" class="btn btn-primary">Nueva</a>
             {% endif %}
         </div>
     </div>
     <div class="card-body">
+        {{ campo_busqueda(busqueda) }}
         <div class="table-responsive">
-            <table class="table table-sm table-striped table-hover" style="min-width: 600px">
+            <table id="table" class="table table-sm table-striped table-hover" style="min-width: 600px">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Documento</th>
-                        <th>Nombre completo</th>
-                        <th>Sexo</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
+                        <th width="10%">ID</th>
+                        <th width="15%">Documento</th>
+                        <th width="35%">Nombre completo</th>
+                        <th width="10%">Sexo</th>
+                        <th width="10%">Teléfono</th>
+                        <th width="10%">Correo</th>
                         {% if session.get('rol_id') == 1 %}
-                            <th class="text-end">Acciones</th>
+                            <th width="10%" class="text-end">Acciones</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -39,11 +42,32 @@
                         <td>{{ persona.correo or '—' }}</td>
                         {% if session.get('rol_id') == 1 %}
                         <td class="text-end">
-                            <a href="{{ url_for('personas.actualizar_persona', persona_id=persona.id) }}" class="btn btn-secondary btn-sm">Editar</a>
-                            <form method="POST" action="{{ url_for('personas.eliminar_persona', persona_id=persona.id) }}"
-                                onsubmit="return confirm('¿Eliminar esta persona?');" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                            </form>
+                            <div class="dropdown position-static">
+                                <button
+                                    class="btn btn-secondary btn-sm dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    data-bs-boundary="viewport"
+                                >
+                                    <span class="d-none d-lg-inline">Acciones</span>
+                                    <span class="d-lg-none">⚙︎</span></button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a href="{{ url_for('personas.ver_persona', persona_id=persona.id) }}" class="dropdown-item">Ver</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url_for('personas.actualizar_persona', persona_id=persona.id) }}" class="dropdown-item">Editar</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ url_for('personas.eliminar_persona', persona_id=persona.id) }}"
+                                            onsubmit="return confirm('¿Eliminar esta persona?');">
+                                            <button type="submit" class="dropdown-item">Eliminar</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                         {% endif %}
                     </tr>
@@ -55,6 +79,7 @@
                 </tbody>
             </table>
         </div>
+        {{ pagination_info(pagination, busqueda) }}
     </div>
 </div>
 {% endblock %}

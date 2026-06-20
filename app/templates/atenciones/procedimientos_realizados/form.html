@@ -1,0 +1,51 @@
+{% from "_selector_modal.html" import selector_modal, script_selector_modal %}
+
+{% extends "base.html" %}
+
+{% block title %}{% if solo_lectura %}Ver{% elif procedimiento_realizado %}Editar{% else %}Nuevo{% endif %} Procedimiento realizado — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if solo_lectura %}Ver{% elif procedimiento_realizado %}Editar{% else %}Nuevo{% endif %} Procedimiento realizado</h2>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
+        <form method="POST">
+            {{ selector_modal(
+                items=procedimientos,
+                id_campo='procedimiento_id',
+                nombre_campo='procedimiento_nombre',
+                placeholder='Buscar procedimiento...',
+                columnas=['Sección', 'Código CPMS', 'Nombre'],
+                datos=['seccion', 'codigo_cpms', 'nombre'],
+                propiedad_principal='nombre',
+                disabled=solo_lectura
+            ) }}
+            <div class="mb-3">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ procedimiento_realizado.fecha.strftime('%Y-%m-%d') if procedimiento_realizado and procedimiento_realizado.fecha else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="observacion" class="form-label">Observación</label>
+                <textarea class="form-control" id="observacion" name="observacion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ procedimiento_realizado.observacion if procedimiento_realizado and procedimiento_realizado.observacion else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="responsable_id" class="form-label">Responsable</label>
+                <select class="form-select" id="responsable_id" name="responsable_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for responsable in responsables %}
+                    <option value="{{ responsable.id }}" {% if procedimiento_realizado and procedimiento_realizado.responsable_id == responsable.id %}selected{% endif %}>{{ responsable.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if not solo_lectura %}
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="btn btn-secondary">Cancelar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{{ script_selector_modal(id_campo='procedimiento_id') }}
+{% endblock %}

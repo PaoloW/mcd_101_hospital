@@ -6,8 +6,11 @@ from app.controllers.auth_controller import personal_requerido
 from app.extensions import db
 from app.models.persona import Persona
 from app.models.usuario import Usuario
+from app.services.factiliza_service import consultar_dni, mapear_datos_factiliza
 
 personas_bp = Blueprint("personas", __name__, url_prefix="/personas")
+
+PER_PAGE = 20
 
 
 def _parsear_fecha(valor: str):
@@ -36,8 +39,20 @@ def _datos_formulario_persona():
 @personas_bp.route("/")
 @personal_requerido
 def listar_personas():
-    personas = Persona.query.order_by(Persona.id).all()
-    return render_template("personas/listar.html", personas=personas)
+    page = request.args.get("page", 1, type=int)
+    busqueda = request.args.get("busqueda", "").strip()
+    query = Persona.query.order_by(Persona.id.desc())
+    if busqueda:
+        filtro = (
+            Persona.numero_documento.ilike(f"%{busqueda}%")
+            | Persona.nombre_completo.ilike(f"%{busqueda}%")
+            | Persona.sexo.ilike(f"%{busqueda}%")
+            | Persona.telefono.ilike(f"%{busqueda}%")
+            | Persona.correo.ilike(f"%{busqueda}%")
+        )
+        query = query.filter(filtro)
+    pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("personas/listar.html", pagination=pagination, personas=pagination.items, busqueda=busqueda)
 
 
 @personas_bp.route("/create", methods=["GET", "POST"])
@@ -62,6 +77,13 @@ def guardar_persona():
         return redirect(url_for("personas.listar_personas"))
 
     return render_template("personas/form.html", persona=None)
+
+
+@personas_bp.route("/<int:persona_id>/ver")
+@personal_requerido
+def ver_persona(persona_id):
+    persona = Persona.query.get_or_404(persona_id)
+    return render_template("personas/form.html", persona=persona, solo_lectura=True)
 
 
 @personas_bp.route("/<int:persona_id>/edit", methods=["GET", "POST"])
@@ -119,11 +141,45 @@ def buscar_por_documento():
     if not documento:
         return jsonify({"encontrado": False, "mensaje": "Ingrese un número de documento."}), 400
 
+    # 1. Buscar en la base de datos local
     persona = Persona.query.filter_by(numero_documento=documento).first()
-    if persona is None:
+    if persona is not None:
         return jsonify(
-            {"encontrado": False, "mensaje": "No se encontró una persona con ese documento."}
+            {
+                "encontrado": True,
+                "id": persona.id,
+                "numero_documento": persona.numero_documento,
+                "nombre_completo": persona.nombre_completo,
+            }
         )
+
+    # 2. No existe en BD → consultar Factiliza
+    info = consultar_dni(documento)
+    if info is None:
+        return jsonify(
+            {
+                "encontrado": False,
+                "mensaje": "No se encontró una persona con ese documento en la base de datos ni en el servicio externo.",
+            }
+        ), 404
+
+    # 3. Mapear datos y crear la persona en BD
+    datos_persona = mapear_datos_factiliza(info)
+
+    # Validar que Factiliza haya devuelto al menos el documento
+    if not datos_persona.get("numero_documento"):
+        return jsonify(
+            {"encontrado": False, "mensaje": "El servicio externo no devolvió datos válidos."}
+        ), 502
+
+    # Parsear fecha_nacimiento si viene como string desde Factiliza
+    fecha_nac = datos_persona.get("fecha_nacimiento")
+    if fecha_nac and isinstance(fecha_nac, str):
+        datos_persona["fecha_nacimiento"] = _parsear_fecha(fecha_nac)
+
+    persona = Persona(**datos_persona)
+    db.session.add(persona)
+    db.session.commit()
 
     return jsonify(
         {

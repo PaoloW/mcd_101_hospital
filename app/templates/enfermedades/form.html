@@ -1,28 +1,35 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if enfermedad else 'Nueva' }} enfermedad — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if enfermedad else 'Nueva') }} enfermedad — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-8">
         <div class="card-header">
-            <h2 class="mb-0">{{ 'Editar' if enfermedad else 'Nueva' }} enfermedad</h2>
+            <h2 class="mb-0">{{ 'Ver' if solo_lectura else ('Editar' if enfermedad else 'Nueva') }} enfermedad</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form method="POST"
-                action="{{ url_for('enfermedades.actualizar_enfermedad', enfermedad_id=enfermedad.id) if enfermedad else url_for('enfermedades.guardar_enfermedad') }}">
+                action="{{ url_for('enfermedades.actualizar_enfermedad', enfermedad_id=enfermedad.id) if enfermedad and not solo_lectura else url_for('enfermedades.guardar_enfermedad') }}">
                 <div class="mb-3">
                     <label class="form-label" for="nombre">Nombre</label>
                     <input type="text" id="nombre" name="nombre" class="form-control"
-                        value="{{ enfermedad.nombre if enfermedad else '' }}" maxlength="512" required>
+                        value="{{ enfermedad.nombre if enfermedad else '' }}" maxlength="512"
+                        {{ 'disabled' if solo_lectura else '' }}
+                        {{ 'required' if not solo_lectura else '' }}>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="codigo_cie10">Código CIE-10</label>
                     <input type="text" id="codigo_cie10" name="codigo_cie10" class="form-control"
-                        value="{{ enfermedad.codigo_cie10 if enfermedad else '' }}" maxlength="7">
+                        value="{{ enfermedad.codigo_cie10 if enfermedad else '' }}" maxlength="7"
+                        {{ 'disabled' if solo_lectura else '' }}>
                 </div>
                 <div class="text-end">
+                    {% if not solo_lectura %}
                     <button type="submit" class="btn btn-primary">Guardar</button>
+                    {% endif %}
                     <a href="{{ url_for('enfermedades.listar_enfermedades') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>

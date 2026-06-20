@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "_pagination.html" import pagination_info %}
+{% from "_busqueda.html" import campo_busqueda %}
+
+{% block title %}Campañas — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Campañas de salud</h2>
+        <a href="{{ url_for('campanas.crear_campana') }}" class="btn btn-primary">Nueva campaña</a>
+    </div>
+    <div class="card-body">
+        {{ campo_busqueda(busqueda) }}
+        <div class="table-responsive">
+            <table id="table" class="table table-sm table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="25%">Nombre</th>
+                        <th width="20%">Fecha inicio</th>
+                        <th width="20%">Fecha fin</th>
+                        <th width="25%">Objetivo</th>
+                        <th width="5%" class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for campana in campanas %}
+                    <tr>
+                        <td>{{ campana.id }}</td>
+                        <td>{{ campana.nombre }}</td>
+                        <td>{{ campana.desde.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ campana.hasta.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ campana.objetivo[:60] + '...' if campana.objetivo and campana.objetivo|length > 60 else campana.objetivo or '—' }}</td>
+                        <td class="text-end">
+                            <div class="dropdown position-static">
+                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="viewport">
+                                    <span class="d-none d-lg-inline">Acciones</span>
+                                    <span class="d-lg-none">⚙︎</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a href="{{ url_for('campanas.ver_campana', campana_id=campana.id) }}" class="dropdown-item">Ver</a></li>
+                                    <li><a href="{{ url_for('campanas.editar_campana', campana_id=campana.id) }}" class="dropdown-item">Editar</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a href="{{ url_for('campanas.listar_atenciones_campana', campana_id=campana.id) }}" class="dropdown-item">Ver atenciones</a></li>
+                                    <li><a href="{{ url_for('campanas.crear_atencion_campana', campana_id=campana.id) }}" class="dropdown-item">Nueva atención</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ url_for('campanas.eliminar_campana', campana_id=campana.id) }}" onsubmit="return confirm('¿Eliminar esta campaña?');">
+                                            <button type="submit" class="dropdown-item">Eliminar</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay campañas registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ pagination_info(pagination, busqueda) }}
+    </div>
+</div>
+{% endblock %}

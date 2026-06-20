@@ -87,6 +87,7 @@ def login():
         session["usuario_id"] = usuario.id
         session["username"] = usuario.username
         session["rol_id"] = usuario.rol_id
+        session["persona_id"] = usuario.persona_id
 
         flash(f"Bienvenido, {usuario.username}.", "success")
         return redirect(url_for("auth.home"))

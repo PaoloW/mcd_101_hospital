@@ -1,18 +1,20 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if atencion else 'Nueva' }} atención — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if atencion else 'Nueva') }} atención — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-9">
         <div class="card-header">
-            <h2>{{ 'Editar' if atencion else 'Nueva' }} atención</h2>
+            <h2>{{ 'Ver' if solo_lectura else ('Editar' if atencion else 'Nueva') }} atención</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form
                 method="POST"
                 id="form-atencion"
-                action="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) if atencion else url_for('atenciones.guardar_atencion') }}"
+                action="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) if atencion and not solo_lectura else url_for('atenciones.guardar_atencion') }}"
             >
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">
@@ -21,19 +23,19 @@
                             type="datetime-local"
                             id="fecha_hora"
                             name="fecha_hora"
-                            value="{{ atencion.fecha_hora if atencion else ahora.strftime('%Y-%m-%dT%H:%M') }}" required
-                            required
+                            value="{{ atencion.fecha_hora if atencion else ahora.strftime('%Y-%m-%dT%H:%M') }}"
                             class="form-control"
-                        >
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="responsable_id">Responsable</label>
                         <select
                             id="responsable_id"
                             name="responsable_id"
-                            required
                             class="form-select"
-                        >
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                             <option value="">Seleccionar</option>
                             {% for responsable in responsables %}
                                 <option
@@ -48,9 +50,9 @@
                         <select
                             id="tipo_atencion_id"
                             name="tipo_atencion_id"
-                            required
                             class="form-select"
-                        >
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                             {% for tipo in tipos %}
                                 <option value="{{ tipo.id }}" {{ 'selected' if atencion and atencion.tipo_atencion_id == tipo.id else '' }}>{{ tipo.nombre }}</option>
                             {% endfor %}
@@ -61,15 +63,14 @@
                         <select
                             id="estado_atencion_id"
                             name="estado_atencion_id"
-                            required
                             class="form-select"
-                        >
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                             {% for estado in estados %}
                                 <option value="{{ estado.id }}" {{ 'selected' if atencion and atencion.estado_atencion_id == estado.id else '' }}>{{ estado.nombre }}</option>
                             {% endfor %}
                         </select>
                     </div>
-
                     {% if atencion %}
                         <div class="col-12 mb-3">
                             <label class="form-label">Paciente</label>
@@ -78,6 +79,7 @@
                             </div>
                         </div>
                     {% else %}
+                        {% if not solo_lectura %}
                         <div class="col-12 mb-3">
                             <label class="form-label" for="numero_documento_busqueda">Buscar paciente por documento</label>
                             <div class="input-group">
@@ -98,6 +100,7 @@
                         <div class="col-12 mb-3">
                             <div id="mensaje-resultado" class="alert alert alert-secondary">Busque al paciente por su documento.</div>
                         </div>
+                        {% endif %}
                     {% endif %}
 
                     <input
@@ -115,10 +118,13 @@
                             class="form-control"
                             rows="3"
                             style="resize: none;"
+                            {{ 'disabled' if solo_lectura else '' }}
                         >{{ atencion.observacion or '' }}</textarea>
                     </div>
                     <div class="col-12 text-end">
+                        {% if not solo_lectura %}
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        {% endif %}
                         <a href="{{ url_for('atenciones.listar_atenciones') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </div>
@@ -129,7 +135,7 @@
 {% endblock %}
 
 {% block scripts %}
-{% if not atencion %}
+{% if not atencion and not solo_lectura %}
 <script>
 (function () {
     const inputDocumento = document.getElementById('numero_documento_busqueda');

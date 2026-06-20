@@ -1,18 +1,20 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if usuario else 'Nuevo' }} usuario — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if usuario else 'Nuevo') }} usuario — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-9">
         <div class="card-header">
-            <h2>{{ 'Editar' if usuario else 'Nuevo' }} usuario</h2>
+            <h2>{{ 'Ver' if solo_lectura else ('Editar' if usuario else 'Nuevo') }} usuario</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form
                 method="POST"
                 id="form-usuario"
-                action="{{ url_for('usuarios.actualizar_usuario', usuario_id=usuario.id) if usuario else url_for('usuarios.guardar_usuario') }}"
+                action="{{ url_for('usuarios.actualizar_usuario', usuario_id=usuario.id) if usuario and not solo_lectura else url_for('usuarios.guardar_usuario') }}"
             >
                 <div class="row">
                     {% if usuario %}
@@ -23,6 +25,7 @@
                             </div>
                         </div>
                     {% else %}
+                        {% if not solo_lectura %}
                         <div class="col-12 mb-3">
                             <label class="form-label" for="numero_documento_busqueda">Buscar persona por documento</label>
                             <div class="input-group">
@@ -49,6 +52,7 @@
                             name="persona_id"
                             value=""
                         >
+                        {% endif %}
                     {% endif %}
 
                     <div class="col-12 mb-3">
@@ -58,9 +62,9 @@
                             id="username"
                             name="username"
                             value="{{ usuario.username if usuario else '' }}"
-                            required
                             class="form-control"
-                        >
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ 'required' if not solo_lectura else '' }}>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label" for="password">Contraseña{% if usuario %} (dejar vacío para no cambiar){% endif %}</label>
@@ -68,13 +72,13 @@
                             type="password"
                             id="password"
                             name="password"
-                            {{ '' if usuario else 'required' }}
                             class="form-control"
-                        >
+                            {{ 'disabled' if solo_lectura else '' }}
+                            {{ '' if usuario or solo_lectura else 'required' }}>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label" for="rol_id">Rol</label>
-                        <select id="rol_id" name="rol_id" class="form-select">
+                        <select id="rol_id" name="rol_id" class="form-select" {{ 'disabled' if solo_lectura else '' }}>
                             <option value="1" {{ 'selected' if usuario and usuario.rol_id == 1 else '' }}>Admin</option>
                             <option value="2" {{ 'selected' if not usuario or usuario.rol_id == 2 else '' }}>Doctor</option>
                             <option value="3" {{ 'selected' if usuario and usuario.rol_id == 3 else '' }}>Paciente</option>
@@ -84,13 +88,15 @@
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label" for="estado">Estado</label>
-                        <select id="estado" name="estado" class="form-select">
+                        <select id="estado" name="estado" class="form-select" {{ 'disabled' if solo_lectura else '' }}>
                             <option value="1" {{ 'selected' if not usuario or usuario.estado == 1 else '' }}>Activo</option>
                             <option value="0" {{ 'selected' if usuario and usuario.estado == 0 else '' }}>Inactivo</option>
                         </select>
                     </div>
                     <div class="col-12 text-end">
+                        {% if not solo_lectura %}
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        {% endif %}
                         <a href="{{ url_for('usuarios.listar_usuarios') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </div>
@@ -101,7 +107,7 @@
 {% endblock %}
 
 {% block scripts %}
-{% if not usuario %}
+{% if not usuario and not solo_lectura %}
 <script>
 (function () {
     const inputDocumento = document.getElementById('numero_documento_busqueda');

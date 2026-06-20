@@ -1,23 +1,29 @@
 {% extends "base.html" %}
+{% from "_form_lectura.html" import modo_lectura %}
 
-{% block title %}{{ 'Editar' if tipo else 'Nuevo' }} tipo de parámetro — Hospital{% endblock %}
+{% block title %}{{ 'Ver' if solo_lectura else ('Editar' if tipo else 'Nuevo') }} tipo de parámetro — Hospital{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card col-12 col-md-8">
         <div class="card-header">
-            <h2 class="mb-0">{{ 'Editar' if tipo else 'Nuevo' }} tipo de parámetro</h2>
+            <h2 class="mb-0">{{ 'Ver' if solo_lectura else ('Editar' if tipo else 'Nuevo') }} tipo de parámetro</h2>
         </div>
         <div class="card-body">
+            {% if solo_lectura %}{{ modo_lectura() }}{% endif %}
             <form method="POST"
-                action="{{ url_for('tipos_parametros.actualizar_tipo_parametro', tipo_id=tipo.id) if tipo else url_for('tipos_parametros.guardar_tipo_parametro') }}">
+                action="{{ url_for('tipos_parametros.actualizar_tipo_parametro', tipo_id=tipo.id) if tipo and not solo_lectura else url_for('tipos_parametros.guardar_tipo_parametro') }}">
                 <div class="mb-3">
                     <label class="form-label" for="nombre">Nombre</label>
                     <input type="text" id="nombre" name="nombre" class="form-control"
-                        value="{{ tipo.nombre if tipo else '' }}" maxlength="255" required>
+                        value="{{ tipo.nombre if tipo else '' }}" maxlength="255"
+                        {{ 'disabled' if solo_lectura else '' }}
+                        {{ 'required' if not solo_lectura else '' }}>
                 </div>
                 <div class="text-end">
+                    {% if not solo_lectura %}
                     <button type="submit" class="btn btn-primary">Guardar</button>
+                    {% endif %}
                     <a href="{{ url_for('tipos_parametros.listar_tipos_parametros') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>

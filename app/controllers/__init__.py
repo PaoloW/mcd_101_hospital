@@ -8,6 +8,12 @@ from app.controllers.procedimiento_controller import procedimientos_bp
 from app.controllers.medicamento_controller import medicamentos_bp
 from app.controllers.tipo_parametro_controller import tipos_parametros_bp
 from app.controllers.parametro_controller import parametros_bp
+from app.controllers.analisis_controller import analisis_bp
+from app.controllers.diagnosticos_controller import diagnosticos_bp
+from app.controllers.prescripciones_controller import prescripciones_bp
+from app.controllers.procedimientos_realizados_controller import procedimientos_realizados_bp
+from app.controllers.campana_salud_controller import campanas_bp
+from app.controllers.reportes_controller import reportes_bp
 
 __all__ = [
     "auth_bp",
@@ -20,4 +26,10 @@ __all__ = [
     "medicamentos_bp",
     "tipos_parametros_bp",
     "parametros_bp",
+    "analisis_bp",
+    "diagnosticos_bp",
+    "prescripciones_bp",
+    "procedimientos_realizados_bp",
+    "campanas_bp",
+    "reportes_bp",
 ]
