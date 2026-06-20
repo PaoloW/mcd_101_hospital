@@ -47,7 +47,14 @@ def listar_diagnosticos(atencion_id):
 def crear_diagnostico(atencion_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
-    enfermedades = Enfermedad.query.all()
+    enfermedades = [
+        {
+            "id": e.id,
+            "nombre": e.nombre,
+            "codigo_cie10": e.codigo_cie10,
+        }
+        for e in Enfermedad.query.all()
+    ]
     responsables = Usuario.query.filter_by(rol_id=2).all()
 
     if request.method == "POST":
@@ -89,7 +96,7 @@ def ver_diagnostico(atencion_id, diagnostico_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     diagnostico = Diagnostico.query.filter_by(id=diagnostico_id, atencion_id=atencion_id).first_or_404()
-    enfermedades = Enfermedad.query.all()
+    enfermedades = [{"id": e.id, "nombre": e.nombre} for e in Enfermedad.query.all()]
     responsables = Usuario.query.filter_by(rol_id=2).all()
     return render_template(
         "atenciones/diagnosticos/form.html",
@@ -107,7 +114,7 @@ def editar_diagnostico(atencion_id, diagnostico_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     diagnostico = Diagnostico.query.filter_by(id=diagnostico_id, atencion_id=atencion_id).first_or_404()
-    enfermedades = Enfermedad.query.all()
+    enfermedades = [{"id": e.id, "nombre": e.nombre} for e in Enfermedad.query.all()]
     responsables = Usuario.query.filter_by(rol_id=2).all()
 
     if request.method == "POST":

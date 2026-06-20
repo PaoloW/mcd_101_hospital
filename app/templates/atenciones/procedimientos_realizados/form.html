@@ -1,3 +1,5 @@
+{% from "_selector_modal.html" import selector_modal, script_selector_modal %}
+
 {% extends "base.html" %}
 
 {% block title %}{% if solo_lectura %}Ver{% elif procedimiento_realizado %}Editar{% else %}Nuevo{% endif %} Procedimiento realizado — Hospital{% endblock %}
@@ -10,15 +12,16 @@
     <div class="card-body">
         <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
         <form method="POST">
-            <div class="mb-3">
-                <label for="procedimiento_id" class="form-label">Procedimiento</label>
-                <select class="form-select" id="procedimiento_id" name="procedimiento_id" {% if solo_lectura %}disabled{% endif %} required>
-                    <option value="">-- Seleccione --</option>
-                    {% for procedimiento in procedimientos %}
-                    <option value="{{ procedimiento.id }}" {% if procedimiento_realizado and procedimiento_realizado.procedimiento_id == procedimiento.id %}selected{% endif %}>{{ procedimiento.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            {{ selector_modal(
+                items=procedimientos,
+                id_campo='procedimiento_id',
+                nombre_campo='procedimiento_nombre',
+                placeholder='Buscar procedimiento...',
+                columnas=['Sección', 'Código CPMS', 'Nombre'],
+                datos=['seccion', 'codigo_cpms', 'nombre'],
+                propiedad_principal='nombre',
+                disabled=solo_lectura
+            ) }}
             <div class="mb-3">
                 <label for="fecha" class="form-label">Fecha</label>
                 <input type="date" class="form-control" id="fecha" name="fecha" value="{{ procedimiento_realizado.fecha.strftime('%Y-%m-%d') if procedimiento_realizado and procedimiento_realizado.fecha else '' }}" {% if solo_lectura %}disabled{% endif %} required>
@@ -43,4 +46,6 @@
         </form>
     </div>
 </div>
+
+{{ script_selector_modal(id_campo='procedimiento_id') }}
 {% endblock %}

@@ -48,7 +48,15 @@ def listar_procedimientos_realizados(atencion_id):
 def crear_procedimiento_realizado(atencion_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
-    procedimientos = Procedimiento.query.all()
+    procedimientos = [
+        {
+            "id": p.id,
+            "codigo_cpms": p.codigo_cpms,
+            "nombre": p.nombre,
+            "seccion": p.seccion.nombre,
+        }
+        for p in Procedimiento.query.all()
+    ]
     responsables = Usuario.query.filter_by(rol_id=2).all()
 
     if request.method == "POST":

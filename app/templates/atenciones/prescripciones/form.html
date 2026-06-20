@@ -1,3 +1,5 @@
+{% from "_selector_modal.html" import selector_modal, script_selector_modal %}
+
 {% extends "base.html" %}
 
 {% block title %}{% if solo_lectura %}Ver{% elif prescripcion %}Editar{% else %}Nuevo{% endif %} Prescripción — Hospital{% endblock %}
@@ -10,15 +12,16 @@
     <div class="card-body">
         <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
         <form method="POST">
-            <div class="mb-3">
-                <label for="medicamento_id" class="form-label">Medicamento</label>
-                <select class="form-select" id="medicamento_id" name="medicamento_id" {% if solo_lectura %}disabled{% endif %} required>
-                    <option value="">-- Seleccione --</option>
-                    {% for medicamento in medicamentos %}
-                    <option value="{{ medicamento.id }}" {% if prescripcion and prescripcion.medicamento_id == medicamento.id %}selected{% endif %}>{{ medicamento.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            {{ selector_modal(
+                items=medicamentos,
+                id_campo='medicamento_id',
+                nombre_campo='medicamento_nombre',
+                placeholder='Buscar medicamento...',
+                columnas=['Código', 'Denominación', 'Unidad'],
+                datos=['codigo', 'denominacion', 'unidad_medida'],
+                propiedad_principal='nombre',
+                disabled=solo_lectura
+            ) }}
             <div class="mb-3">
                 <label for="dosis" class="form-label">Dosis</label>
                 <input type="text" class="form-control" id="dosis" name="dosis" value="{{ prescripcion.dosis if prescripcion else '' }}" {% if solo_lectura %}disabled{% endif %} required>
@@ -38,4 +41,6 @@
         </form>
     </div>
 </div>
+
+{{ script_selector_modal(id_campo='medicamento_id') }}
 {% endblock %}

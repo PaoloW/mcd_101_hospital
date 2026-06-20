@@ -1,3 +1,5 @@
+{% from "_selector_modal.html" import selector_modal, script_selector_modal %}
+
 {% extends "base.html" %}
 
 {% block title %}{% if solo_lectura %}Ver{% elif diagnostico %}Editar{% else %}Nuevo{% endif %} Diagnóstico — Hospital{% endblock %}
@@ -10,15 +12,16 @@
     <div class="card-body">
         <a href="{{ url_for('diagnosticos.listar_diagnosticos', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
         <form method="POST">
-            <div class="mb-3">
-                <label for="enfermedad_id" class="form-label">Enfermedad</label>
-                <select class="form-select" id="enfermedad_id" name="enfermedad_id" {% if solo_lectura %}disabled{% endif %}>
-                    <option value="">-- Seleccione --</option>
-                    {% for enfermedad in enfermedades %}
-                    <option value="{{ enfermedad.id }}" {% if diagnostico and diagnostico.enfermedad_id == enfermedad.id %}selected{% endif %}>{{ enfermedad.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            {{ selector_modal(
+                items=enfermedades,
+                id_campo='enfermedad_id',
+                nombre_campo='enfermedad_nombre',
+                placeholder='Buscar enfermedad...',
+                columnas=['Código CIE-10', 'Nombre'],
+                datos=['codigo_cie10', 'nombre'],
+                propiedad_principal='nombre',
+                disabled=solo_lectura
+            ) }}
             <div class="mb-3">
                 <label for="fecha" class="form-label">Fecha</label>
                 <input type="date" class="form-control" id="fecha" name="fecha" value="{{ diagnostico.fecha.strftime('%Y-%m-%d') if diagnostico and diagnostico.fecha else '' }}" {% if solo_lectura %}disabled{% endif %} required>
@@ -43,4 +46,6 @@
         </form>
     </div>
 </div>
+
+{{ script_selector_modal(id_campo='enfermedad_id') }}
 {% endblock %}
