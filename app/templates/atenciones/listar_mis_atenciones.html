@@ -28,7 +28,7 @@
                     {% for atencion in atenciones %}
                     <tr>
                         <td>{{ atencion.id }}</td>
-                        <td>{{ atencion.fecha_hora.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ atencion.fecha_hora.strftime('%Y-%m-%d %H:%M') if atencion.fecha_hora is not string else atencion.fecha_hora }}</td>
                         <td>{{ atencion.tipo_atencion.nombre }}</td>
                         <td>{{ atencion.estado_atencion.nombre }}</td>
                         <td>{{ atencion.responsable.persona.nombre_completo if atencion.responsable else '—' }}</td>
