@@ -71,22 +71,6 @@
                             {% endfor %}
                         </select>
                     </div>
-                    {% if campanas %}
-                    <div class="col-12 col-md-6 mb-3">
-                        <label class="form-label" for="campana_id">Campaña de salud</label>
-                        <select
-                            id="campana_id"
-                            name="campana_id"
-                            class="form-select"
-                            {{ 'disabled' if solo_lectura else '' }}>
-                            <option value="">Ninguna</option>
-                            {% for campana in campanas %}
-                                <option value="{{ campana.id }}" {{ 'selected' if atencion and atencion.participante and atencion.participante.campana_id == campana.id else '' }}>{{ campana.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% endif %}
-
                     {% if atencion %}
                         <div class="col-12 mb-3">
                             <label class="form-label">Paciente</label>

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva atención - {{ campana.nombre }} — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2>Nueva atención - {{ campana.nombre }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <strong>Campaña:</strong> {{ campana.nombre }}<br>
+                <strong>Periodo:</strong> {{ campana.desde.strftime('%Y-%m-%d') }} al {{ campana.hasta.strftime('%Y-%m-%d') }}
+            </div>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label" for="paciente_id">Paciente</label>
+                    <input type="text" class="form-control" value="Campaña - {{ campana.nombre }}" disabled>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="fecha_hora">Fecha y hora</label>
+                        <input
+                            type="datetime-local"
+                            id="fecha_hora"
+                            name="fecha_hora"
+                            value="{{ ahora.strftime('%Y-%m-%dT%H:%M') }}"
+                            class="form-control"
+                            required>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="responsable_id">Responsable</label>
+                        <select
+                            id="responsable_id"
+                            name="responsable_id"
+                            class="form-select"
+                            required>
+                            <option value="">Seleccionar</option>
+                            {% for responsable in responsables %}
+                                <option value="{{ responsable.id }}">{{ responsable.persona.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="observacion">Observación</label>
+                    <textarea
+                        class="form-control"
+                        id="observacion"
+                        name="observacion"
+                        rows="3">{{ campana.objetivo or '' }}</textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a href="{{ url_for('campanas.listar_atenciones_campana', campana_id=campana.id) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

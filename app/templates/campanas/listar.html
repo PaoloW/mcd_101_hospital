@@ -44,6 +44,9 @@
                                     <li><a href="{{ url_for('campanas.ver_campana', campana_id=campana.id) }}" class="dropdown-item">Ver</a></li>
                                     <li><a href="{{ url_for('campanas.editar_campana', campana_id=campana.id) }}" class="dropdown-item">Editar</a></li>
                                     <li><hr class="dropdown-divider"></li>
+                                    <li><a href="{{ url_for('campanas.listar_atenciones_campana', campana_id=campana.id) }}" class="dropdown-item">Ver atenciones</a></li>
+                                    <li><a href="{{ url_for('campanas.crear_atencion_campana', campana_id=campana.id) }}" class="dropdown-item">Nueva atención</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form method="POST" action="{{ url_for('campanas.eliminar_campana', campana_id=campana.id) }}" onsubmit="return confirm('¿Eliminar esta campaña?');">
                                             <button type="submit" class="dropdown-item">Eliminar</button>
