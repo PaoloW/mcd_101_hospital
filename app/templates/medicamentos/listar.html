@@ -9,7 +9,10 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Medicamentos</h2>
-            <a href="{{ url_for('medicamentos.guardar_medicamento') }}" class="btn btn-primary">Nuevo</a>
+            <div>
+                <a href="{{ url_for('medicamentos.guardar_medicamento') }}" class="btn btn-primary">Nuevo</a>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-importar">Importar</button>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -73,4 +76,144 @@
         {{ pagination_info(pagination, busqueda) }}
     </div>
 </div>
+
+<!-- Modal Importar -->
+<div class="modal fade" id="modal-importar" tabindex="-1" aria-labelledby="modal-importar-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-importar-label">Importar medicamentos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Paso 1: Descargar plantilla -->
+                <div class="mb-3">
+                    <p class="mb-2">Descarga la plantilla, complétala y súbela para registrar medicamentos masivamente.</p>
+                    <a href="{{ url_for('medicamentos.descargar_plantilla') }}" class="btn btn-outline-primary btn-sm">
+                        Descargar plantilla
+                    </a>
+                </div>
+                <hr>
+                <!-- Paso 2: Subir archivo -->
+                <form id="form-importar" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="archivo-importar" class="form-label">Seleccionar archivo XLSX</label>
+                        <input class="form-control" type="file" id="archivo-importar" name="archivo" accept=".xlsx" required>
+                    </div>
+                    <button type="submit" class="btn btn-success" id="btn-subir-importar">
+                        <span id="spinner-importar" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        Importar
+                    </button>
+                </form>
+                <hr>
+                <!-- Resultado -->
+                <div id="resultado-importacion" class="d-none">
+                    <div id="resumen-importacion" class="alert"></div>
+                    <div id="tabla-invalidos-wrapper" class="d-none">
+                        <h6 class="mt-3">Registros con errores</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered table-striped" id="tabla-invalidos">
+                                <thead class="table-warning">
+                                    <tr>
+                                        <th>Fila</th>
+                                        <th>Código</th>
+                                        <th>Denominación</th>
+                                        <th>Unidad</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.getElementById('form-importar').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const btn = document.getElementById('btn-subir-importar');
+    const spinner = document.getElementById('spinner-importar');
+    const resultadoDiv = document.getElementById('resultado-importacion');
+    const resumen = document.getElementById('resumen-importacion');
+    const tablaWrapper = document.getElementById('tabla-invalidos-wrapper');
+    const tbody = document.querySelector('#tabla-invalidos tbody');
+
+    // Resetear UI
+    resultadoDiv.classList.add('d-none');
+    tablaWrapper.classList.add('d-none');
+    tbody.innerHTML = '';
+    resumen.className = 'alert';
+
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+
+    try {
+        const response = await fetch('{{ url_for("medicamentos.importar_medicamentos") }}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            resumen.className = 'alert alert-danger';
+            resumen.textContent = data.error || 'Error al procesar el archivo.';
+            resultadoDiv.classList.remove('d-none');
+            return;
+        }
+
+        // Éxito
+        const insertados = data.insertados || 0;
+        const invalidos = data.invalidos || [];
+
+        if (invalidos.length === 0) {
+            resumen.className = 'alert alert-success';
+            resumen.textContent = `Se importaron ${insertados} medicamento(s) correctamente.`;
+        } else {
+            resumen.className = 'alert alert-warning';
+            resumen.textContent = `Se importaron ${insertados} medicamento(s). ${invalidos.length} registro(s) tienen errores (ver tabla).`;
+
+            // Llenar tabla de inválidos
+            invalidos.forEach(function(item) {
+                const tr = document.createElement('tr');
+                const observaciones = Array.isArray(item.observaciones) ? item.observaciones.join('; ') : item.observaciones;
+                tr.innerHTML = `
+                    <td>${item.fila}</td>
+                    <td>${item.datos.codigo || '—'}</td>
+                    <td>${item.datos.denominacion || '—'}</td>
+                    <td>${item.datos.unidad_medida || '—'}</td>
+                    <td class="text-danger">${observaciones}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            tablaWrapper.classList.remove('d-none');
+        }
+
+        resultadoDiv.classList.remove('d-none');
+
+        // Resetear el input file
+        document.getElementById('archivo-importar').value = '';
+
+    } catch (err) {
+        resumen.className = 'alert alert-danger';
+        resumen.textContent = 'Error de conexión al importar.';
+        resultadoDiv.classList.remove('d-none');
+    } finally {
+        btn.disabled = false;
+        spinner.classList.add('d-none');
+    }
+});
+</script>
 {% endblock %}

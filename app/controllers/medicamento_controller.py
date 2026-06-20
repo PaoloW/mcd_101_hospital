@@ -1,9 +1,12 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import io
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, send_file
 from sqlalchemy import text
 
 from app.controllers.auth_controller import personal_requerido
 from app.extensions import db
 from app.models.medicamento import Medicamento
+from app.services.importacion_medicamentos import importar_medicamentos_desde_xlsx, _generar_plantilla_bytes
 
 medicamentos_bp = Blueprint("medicamentos", __name__, url_prefix="/medicamentos")
 
@@ -109,3 +112,40 @@ def eliminar_medicamento(medicamento_id):
 
     flash("Medicamento eliminado correctamente.", "success")
     return redirect(url_for("medicamentos.listar_medicamentos"))
+
+
+@medicamentos_bp.route("/descargar_plantilla")
+@personal_requerido
+def descargar_plantilla():
+    """Descarga un archivo XLSX de plantilla para importar medicamentos."""
+    contenido = _generar_plantilla_bytes()
+    return send_file(
+        io.BytesIO(contenido),
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        as_attachment=True,
+        download_name="plantilla_medicamentos.xlsx",
+    )
+
+
+@medicamentos_bp.route("/importar", methods=["POST"])
+@personal_requerido
+def importar_medicamentos():
+    """Recibe un XLSX, lo procesa y devuelve resultado en JSON."""
+    if "archivo" not in request.files:
+        return jsonify({"error": "No se envió ningún archivo."}), 400
+
+    archivo = request.files["archivo"]
+    if not archivo.filename:
+        return jsonify({"error": "El archivo no tiene nombre."}), 400
+
+    if not archivo.filename.lower().endswith(".xlsx"):
+        return jsonify({"error": "El archivo debe tener extensión .xlsx"}), 400
+
+    try:
+        contenido = archivo.read()
+        resultado = importar_medicamentos_desde_xlsx(contenido)
+        return jsonify(resultado)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Error al procesar el archivo: {str(e)}"}), 500
