@@ -20,7 +20,9 @@
                 columnas=['Sección', 'Código CPMS', 'Nombre'],
                 datos=['seccion', 'codigo_cpms', 'nombre'],
                 propiedad_principal='nombre',
-                disabled=solo_lectura
+                disabled=solo_lectura,
+                valor_actual=procedimiento_realizado.procedimiento.nombre if procedimiento_realizado and procedimiento_realizado.procedimiento else '',
+                valor_id_actual=procedimiento_realizado.procedimiento_id if procedimiento_realizado else ''
             ) }}
             <div class="mb-3">
                 <label for="fecha" class="form-label">Fecha</label>

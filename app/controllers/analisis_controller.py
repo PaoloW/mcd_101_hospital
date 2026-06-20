@@ -105,7 +105,15 @@ def ver_analisis(atencion_id, analisis_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     analisis = Analisis.query.filter_by(id=analisis_id, atencion_id=atencion_id).first_or_404()
-    parametros = Parametro.query.all()
+    parametros = [
+        {
+            "id": p.id,
+            "tipo_parametro": p.tipo_parametro.nombre if p.tipo_parametro else "",
+            "nombre": p.nombre,
+            "unidad_medida": p.unidad_medida or "",
+        }
+        for p in Parametro.query.all()
+    ]
     responsables = Usuario.query.filter_by(rol_id=2).all()
     return render_template(
         "atenciones/analisis/form.html", analisis=analisis, atencion=atencion, parametros=parametros, responsables=responsables, solo_lectura=True
@@ -118,7 +126,15 @@ def editar_analisis(atencion_id, analisis_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     analisis = Analisis.query.filter_by(id=analisis_id, atencion_id=atencion_id).first_or_404()
-    parametros = Parametro.query.all()
+    parametros = [
+        {
+            "id": p.id,
+            "tipo_parametro": p.tipo_parametro.nombre if p.tipo_parametro else "",
+            "nombre": p.nombre,
+            "unidad_medida": p.unidad_medida or "",
+        }
+        for p in Parametro.query.all()
+    ]
     responsables = Usuario.query.filter_by(rol_id=2).all()
 
     if request.method == "POST":

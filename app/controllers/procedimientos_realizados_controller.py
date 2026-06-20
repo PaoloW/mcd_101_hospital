@@ -114,7 +114,15 @@ def ver_procedimiento_realizado(atencion_id, procedimiento_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     procedimiento_realizado = ProcedimientoRealizado.query.filter_by(id=procedimiento_id, atencion_id=atencion_id).first_or_404()
-    procedimientos = Procedimiento.query.all()
+    procedimientos = [
+        {
+            "id": p.id,
+            "codigo_cpms": p.codigo_cpms,
+            "nombre": p.nombre,
+            "seccion": p.seccion.nombre,
+        }
+        for p in Procedimiento.query.all()
+    ]
     responsables = Usuario.query.filter_by(rol_id=2).all()
     return render_template(
         "atenciones/procedimientos_realizados/form.html",
@@ -132,7 +140,15 @@ def editar_procedimiento_realizado(atencion_id, procedimiento_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     procedimiento_realizado = ProcedimientoRealizado.query.filter_by(id=procedimiento_id, atencion_id=atencion_id).first_or_404()
-    procedimientos = Procedimiento.query.all()
+    procedimientos = [
+        {
+            "id": p.id,
+            "codigo_cpms": p.codigo_cpms,
+            "nombre": p.nombre,
+            "seccion": p.seccion.nombre,
+        }
+        for p in Procedimiento.query.all()
+    ]
     responsables = Usuario.query.filter_by(rol_id=2).all()
 
     if request.method == "POST":

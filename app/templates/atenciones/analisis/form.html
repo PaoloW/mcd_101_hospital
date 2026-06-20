@@ -20,7 +20,9 @@
                 columnas=['Tipo', 'Nombre', 'Unidad'],
                 datos=['tipo_parametro', 'nombre', 'unidad_medida'],
                 propiedad_principal='nombre',
-                disabled=solo_lectura
+                disabled=solo_lectura,
+                valor_actual=analisis.parametro.nombre if analisis and analisis.parametro else '',
+                valor_id_actual=analisis.parametro_id if analisis else ''
             ) }}
             <div class="mb-3">
                 <label for="valor_resultado" class="form-label">Valor resultado</label>

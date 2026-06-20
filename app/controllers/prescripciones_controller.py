@@ -109,7 +109,15 @@ def ver_prescripcion(atencion_id, prescripcion_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     prescripcion = Prescripcion.query.filter_by(id=prescripcion_id, atencion_id=atencion_id).first_or_404()
-    medicamentos = Medicamento.query.all()
+    medicamentos = [
+        {
+            "id": m.id,
+            "codigo": m.codigo,
+            "denominacion": m.denominacion,
+            "unidad_medida": m.unidad_medida,
+        }
+        for m in Medicamento.query.all()
+    ]
     return render_template(
         "atenciones/prescripciones/form.html",
         prescripcion=prescripcion,
@@ -125,7 +133,15 @@ def editar_prescripcion(atencion_id, prescripcion_id):
     from app.models.atencion_medica import AtencionMedica
     atencion = AtencionMedica.query.get_or_404(atencion_id)
     prescripcion = Prescripcion.query.filter_by(id=prescripcion_id, atencion_id=atencion_id).first_or_404()
-    medicamentos = Medicamento.query.all()
+    medicamentos = [
+        {
+            "id": m.id,
+            "codigo": m.codigo,
+            "denominacion": m.denominacion,
+            "unidad_medida": m.unidad_medida,
+        }
+        for m in Medicamento.query.all()
+    ]
 
     if request.method == "POST":
         datos = _datos_formulario_prescripcion()

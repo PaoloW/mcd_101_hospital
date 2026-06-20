@@ -20,7 +20,9 @@
                 columnas=['Código CIE-10', 'Nombre'],
                 datos=['codigo_cie10', 'nombre'],
                 propiedad_principal='nombre',
-                disabled=solo_lectura
+                disabled=solo_lectura,
+                valor_actual=diagnostico.enfermedad.nombre if diagnostico and diagnostico.enfermedad else '',
+                valor_id_actual=diagnostico.enfermedad_id if diagnostico else ''
             ) }}
             <div class="mb-3">
                 <label for="fecha" class="form-label">Fecha</label>

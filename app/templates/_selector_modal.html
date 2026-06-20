@@ -1,9 +1,9 @@
-{% macro selector_modal(items=[], id_campo="", nombre_campo="", placeholder="Buscar...", columnas=[], datos=[], propiedad_principal="nombre", disabled=false) %}
+{% macro selector_modal(items=[], id_campo="", nombre_campo="", placeholder="Buscar...", columnas=[], datos=[], propiedad_principal="nombre", disabled=false, valor_actual="", valor_id_actual="") %}
 <div class="mb-3">
     <label class="form-label">{{ placeholder }}</label>
     <div class="input-group">
-        <input type="text" class="form-control" id="{{ nombre_campo }}" value="" readonly>
-        <input type="hidden" id="{{ id_campo }}" name="{{ id_campo }}" value="">
+        <input type="text" class="form-control" id="{{ nombre_campo }}" value="{{ valor_actual }}" readonly>
+        <input type="hidden" id="{{ id_campo }}" name="{{ id_campo }}" value="{{ valor_id_actual }}">
         <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalSelector{{ id_campo|capitalize }}" {{ 'disabled' if disabled else '' }}>
             Seleccionar
         </button>

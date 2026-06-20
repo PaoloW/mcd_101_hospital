@@ -19,8 +19,10 @@
                 placeholder='Buscar medicamento...',
                 columnas=['Código', 'Denominación', 'Unidad'],
                 datos=['codigo', 'denominacion', 'unidad_medida'],
-                propiedad_principal='nombre',
-                disabled=solo_lectura
+                propiedad_principal='denominacion',
+                disabled=solo_lectura,
+                valor_actual=prescripcion.medicamento.denominacion if prescripcion and prescripcion.medicamento else '',
+                valor_id_actual=prescripcion.medicamento_id if prescripcion else ''
             ) }}
             <div class="mb-3">
                 <label for="dosis" class="form-label">Dosis</label>
