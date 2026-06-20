@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Diagnósticos — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Reporte de Diagnósticos</h2>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST" class="row g-3 align-items-end">
+            <div class="col-auto">
+                <label for="fecha_inicio" class="form-label">Fecha inicio</label>
+                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                       value="{{ fecha_inicio.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-auto">
+                <label for="fecha_fin" class="form-label">Fecha fin</label>
+                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
+                       value="{{ fecha_fin.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Generar reporte</button>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('reportes.reporte_diagnosticos') }}" class="btn btn-outline-secondary">Últimos 30 días</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if chart_b64 %}
+    <div class="text-center">
+        <img src="data:image/png;base64,{{ chart_b64 }}" alt="Gráfico de diagnósticos" class="img-fluid border rounded shadow-sm">
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        No se encontraron diagnósticos en el rango de fechas seleccionado.
+    </div>
+{% endif %}
+
+{% endblock %}
