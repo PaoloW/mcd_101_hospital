@@ -61,7 +61,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="table-responsive">
+                <div class="mb-3">
+                    <input type="text" id="busquedaParametro" class="form-control" placeholder="Buscar parámetro...">
+                </div>
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-sm table-striped table-hover">
                         <thead>
                             <tr>
@@ -71,19 +74,28 @@
                                 <th class="text-end">Acción</th>
                             </tr>
                         </thead>
-                            <tbody>
+                        <tbody id="tablaParametros">
                             {% for parametro in parametros %}
-                            <tr>
+                            <tr style="display: none;">
                                 <td>{{ parametro.tipo_parametro.nombre }}</td>
                                 <td>{{ parametro.nombre }}</td>
                                 <td>{{ parametro.unidad_medida or '—' }}</td>
                                 <td class="text-end">
-                                    <button class="btn btn-sm btn-primary">Elegir</button>
+                                    <button class="btn btn-sm btn-primary" data-param-id="{{ parametro.id }}" data-param-nombre="{{ parametro.nombre|e }}" onclick="window._seleccionarParametro(this)">
+                                        Elegir
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <span id="infoPaginacionParametros" class="text-muted small">Página 1 de 1</span>
+                    <select id="selectPaginaParametros" class="form-select form-select-sm" style="width: auto;">
+                    </select>
                 </div>
             </div>
         </div>
@@ -93,11 +105,66 @@
 
 {% block scripts %}
 <script>
-function seleccionarParametro(id, nombre) {
+window._seleccionarParametro = function(btn) {
+    const id = btn.getAttribute('data-param-id');
+    const nombre = btn.getAttribute('data-param-nombre');
     document.getElementById('parametro_id').value = id;
     document.getElementById('parametro_nombre').value = nombre;
     const modal = bootstrap.Modal.getInstance(document.getElementById('modalParametros'));
-    modal.hide();
+    if (modal) modal.hide();
+};
+
+window._paginaParametros = 1;
+window._filasParametros = Array.from(document.querySelectorAll('#tablaParametros tr'));
+window._filasVisibles = [];
+const POR_PAGINA = 10;
+
+function actualizarPaginacionParametros() {
+    const valor = document.getElementById('busquedaParametro').value.trim().toLowerCase();
+    window._filasVisibles = window._filasParametros.filter(function(fila) {
+        if (valor.length < 3) return false;
+        const nombre = fila.cells[1].textContent.toLowerCase();
+        const tipo = fila.cells[0].textContent.toLowerCase();
+        return nombre.includes(valor) || tipo.includes(valor);
+    });
+
+    const total = window._filasVisibles.length;
+    const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+    if (window._paginaParametros > totalPaginas) window._paginaParametros = totalPaginas;
+
+    window._filasParametros.forEach(function(fila) { fila.style.display = 'none'; });
+    const inicio = (window._paginaParametros - 1) * POR_PAGINA;
+    const fin = Math.min(inicio + POR_PAGINA, total);
+    if (valor.length >= 3 && total > 0) {
+        for (let i = inicio; i < fin; i++) {
+            window._filasVisibles[i].style.display = '';
+        }
+    }
+
+    const info = 'Página ' + window._paginaParametros + ' de ' + totalPaginas + ' (' + total + ' registros)';
+    document.getElementById('infoPaginacionParametros').textContent = info;
+
+    const select = document.getElementById('selectPaginaParametros');
+    select.innerHTML = '';
+    for (let p = 1; p <= totalPaginas; p++) {
+        const option = document.createElement('option');
+        option.value = p;
+        option.textContent = 'Página ' + p;
+        if (p === window._paginaParametros) option.selected = true;
+        select.appendChild(option);
+    }
 }
+
+document.getElementById('busquedaParametro').addEventListener('keyup', function() {
+    window._paginaParametros = 1;
+    actualizarPaginacionParametros();
+});
+
+document.getElementById('selectPaginaParametros').addEventListener('change', function() {
+    window._paginaParametros = parseInt(this.value, 10);
+    actualizarPaginacionParametros();
+});
+
+window._actualizarPaginacionParametros = actualizarPaginacionParametros;
 </script>
 {% endblock %}
