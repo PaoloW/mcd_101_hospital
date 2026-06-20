@@ -20,12 +20,21 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="resultado" class="form-label">Resultado</label>
-                <input type="text" class="form-control" id="resultado" name="resultado" value="{{ procedimiento_realizado.resultado if procedimiento_realizado else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ procedimiento_realizado.fecha.strftime('%Y-%m-%d') if procedimiento_realizado and procedimiento_realizado.fecha else '' }}" {% if solo_lectura %}disabled{% endif %} required>
             </div>
             <div class="mb-3">
                 <label for="observacion" class="form-label">Observación</label>
                 <textarea class="form-control" id="observacion" name="observacion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ procedimiento_realizado.observacion if procedimiento_realizado and procedimiento_realizado.observacion else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="responsable_id" class="form-label">Responsable</label>
+                <select class="form-select" id="responsable_id" name="responsable_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for responsable in responsables %}
+                    <option value="{{ responsable.id }}" {% if procedimiento_realizado and procedimiento_realizado.responsable_id == responsable.id %}selected{% endif %}>{{ responsable.username }}</option>
+                    {% endfor %}
+                </select>
             </div>
             {% if not solo_lectura %}
             <button type="submit" class="btn btn-primary">Guardar</button>

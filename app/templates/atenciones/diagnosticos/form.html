@@ -12,7 +12,7 @@
         <form method="POST">
             <div class="mb-3">
                 <label for="enfermedad_id" class="form-label">Enfermedad</label>
-                <select class="form-select" id="enfermedad_id" name="enfermedad_id" {% if solo_lectura %}disabled{% endif %} required>
+                <select class="form-select" id="enfermedad_id" name="enfermedad_id" {% if solo_lectura %}disabled{% endif %}>
                     <option value="">-- Seleccione --</option>
                     {% for enfermedad in enfermedades %}
                     <option value="{{ enfermedad.id }}" {% if diagnostico and diagnostico.enfermedad_id == enfermedad.id %}selected{% endif %}>{{ enfermedad.nombre }}</option>
@@ -20,8 +20,21 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="observacion" class="form-label">Observación</label>
-                <textarea class="form-control" id="observacion" name="observacion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ diagnostico.observacion if diagnostico and diagnostico.observacion else '' }}</textarea>
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" value="{{ diagnostico.fecha.strftime('%Y-%m-%d') if diagnostico and diagnostico.fecha else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ diagnostico.descripcion if diagnostico and diagnostico.descripcion else '' }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="responsable_id" class="form-label">Responsable</label>
+                <select class="form-select" id="responsable_id" name="responsable_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for responsable in responsables %}
+                    <option value="{{ responsable.id }}" {% if diagnostico and diagnostico.responsable_id == responsable.id %}selected{% endif %}>{{ responsable.username }}</option>
+                    {% endfor %}
+                </select>
             </div>
             {% if not solo_lectura %}
             <button type="submit" class="btn btn-primary">Guardar</button>

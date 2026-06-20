@@ -20,17 +20,19 @@
                 <thead>
                     <tr>
                         <th width="10%">ID</th>
-                        <th width="35%">Enfermedad</th>
-                        <th width="40%">Observación</th>
-                        <th width="15%" class="text-end">Acciones</th>
+                        <th width="30%">Enfermedad</th>
+                        <th width="20%">Fecha</th>
+                        <th width="30%">Descripción</th>
+                        <th width="10%" class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
                     {% for diagnostico in diagnosticos %}
                     <tr>
                         <td>{{ diagnostico.id }}</td>
-                        <td>{{ diagnostico.enfermedad.nombre }}</td>
-                        <td>{{ diagnostico.observacion or '—' }}</td>
+                        <td>{{ diagnostico.enfermedad.nombre if diagnostico.enfermedad else '—' }}</td>
+                        <td>{{ diagnostico.fecha.strftime('%Y-%m-%d') if diagnostico.fecha else '—' }}</td>
+                        <td>{{ diagnostico.descripcion or '—' }}</td>
                         <td class="text-end">
                             <div class="dropdown position-static">
                                 <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="viewport">
@@ -52,7 +54,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" class="text-center">No hay diagnósticos registrados.</td>
+                        <td colspan="5" class="text-center">No hay diagnósticos registrados.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

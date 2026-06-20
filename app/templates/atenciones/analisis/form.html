@@ -20,8 +20,25 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="resultado" class="form-label">Resultado</label>
-                <input type="text" class="form-control" id="resultado" name="resultado" value="{{ analisis.resultado if analisis else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+                <label for="valor_resultado" class="form-label">Valor resultado</label>
+                <input type="number" step="any" class="form-control" id="valor_resultado" name="valor_resultado" value="{{ analisis.valor_resultado if analisis and analisis.valor_resultado else '' }}" {% if solo_lectura %}disabled{% endif %}>
+            </div>
+            <div class="mb-3">
+                <label for="fechahora_muestra" class="form-label">Fecha y hora de la muestra</label>
+                <input type="datetime-local" class="form-control" id="fechahora_muestra" name="fechahora_muestra" value="{{ analisis.fechahora_muestra.strftime('%Y-%m-%dT%H:%M') if analisis and analisis.fechahora_muestra else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="fechahora_analisis" class="form-label">Fecha y hora del análisis</label>
+                <input type="datetime-local" class="form-control" id="fechahora_analisis" name="fechahora_analisis" value="{{ analisis.fechahora_analisis.strftime('%Y-%m-%dT%H:%M') if analisis and analisis.fechahora_analisis else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="responsable_id" class="form-label">Responsable</label>
+                <select class="form-select" id="responsable_id" name="responsable_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for responsable in responsables %}
+                    <option value="{{ responsable.id }}" {% if analisis and analisis.responsable_id == responsable.id %}selected{% endif %}>{{ responsable.username }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="mb-3">
                 <label for="observacion" class="form-label">Observación</label>
