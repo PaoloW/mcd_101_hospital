@@ -12,6 +12,7 @@ from app.controllers.analisis_controller import analisis_bp
 from app.controllers.diagnosticos_controller import diagnosticos_bp
 from app.controllers.prescripciones_controller import prescripciones_bp
 from app.controllers.procedimientos_realizados_controller import procedimientos_realizados_bp
+from app.controllers.campana_salud_controller import campanas_bp
 
 __all__ = [
     "auth_bp",
@@ -28,4 +29,5 @@ __all__ = [
     "diagnosticos_bp",
     "prescripciones_bp",
     "procedimientos_realizados_bp",
+    "campanas_bp",
 ]

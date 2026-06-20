@@ -16,6 +16,7 @@ from app.controllers import (
     diagnosticos_bp,
     prescripciones_bp,
     procedimientos_realizados_bp,
+    campanas_bp,
 )
 from app.extensions import db, migrate
 
@@ -41,6 +42,7 @@ def create_app(config_class=Config):
     app.register_blueprint(diagnosticos_bp)
     app.register_blueprint(prescripciones_bp)
     app.register_blueprint(procedimientos_realizados_bp)
+    app.register_blueprint(campanas_bp)
 
     @app.route("/")
     def index():

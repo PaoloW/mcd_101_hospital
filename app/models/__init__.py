@@ -14,6 +14,8 @@ from app.models.analisis import Analisis
 from app.models.diagnostico import Diagnostico
 from app.models.prescripcion import Prescripcion
 from app.models.procedimiento_realizado import ProcedimientoRealizado
+from app.models.campana_salud import CampanaSalud
+from app.models.participante import Participante
 
 __all__ = [
     "Persona",
@@ -32,4 +34,6 @@ __all__ = [
     "Diagnostico",
     "Prescripcion",
     "ProcedimientoRealizado",
+    "CampanaSalud",
+    "Participante",
 ]

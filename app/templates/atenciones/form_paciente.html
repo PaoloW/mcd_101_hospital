@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Nueva' if not atencion else 'Ver' }} cita — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2>{{ 'Nueva cita' if not atencion else 'Ver cita' }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="form-atencion-paciente" action="{{ url_for('atenciones.crear_mi_atencion') }}">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Paciente</label>
+                        <div class="alert alert-secondary">
+                            {{ paciente.numero_documento }} - {{ paciente.nombre_completo or '—' }}
+                        </div>
+                        <input type="hidden" name="paciente_id" value="{{ paciente.id }}">
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="fecha_hora">Fecha y hora</label>
+                        <input
+                            type="datetime-local"
+                            id="fecha_hora"
+                            name="fecha_hora"
+                            value="{{ ahora.strftime('%Y-%m-%dT%H:%M') if not atencion else atencion.fecha_hora.strftime('%Y-%m-%dT%H:%M') }}"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label" for="responsable_id">Profesional responsable</label>
+                        <select
+                            id="responsable_id"
+                            name="responsable_id"
+                            class="form-select"
+                            required>
+                            <option value="">Seleccionar</option>
+                            {% for responsable in responsables %}
+                                <option
+                                    value="{{ responsable.id }}"
+                                    {{ 'selected' if atencion and atencion.responsable_id == responsable.id else '' }}
+                                >{{ responsable.persona.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label">Tipo de atención</label>
+                        <input type="text" class="form-control" value="Cita online" disabled>
+                        <input type="hidden" name="tipo_atencion_id" value="3">
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label">Estado</label>
+                        <input type="text" class="form-control" value="Reservada" disabled>
+                        <input type="hidden" name="estado_atencion_id" value="1">
+                    </div>
+
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a href="{{ url_for('atenciones.listar_mis_atenciones') }}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{% if solo_lectura %}Ver{% elif campana %}Editar{% else %}Nueva{% endif %} campaña — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card col-12 col-md-9">
+        <div class="card-header">
+            <h2>{% if solo_lectura %}Ver{% elif campana %}Editar{% else %}Nueva{% endif %} campaña</h2>
+        </div>
+        <div class="card-body">
+            <a href="{{ url_for('campanas.listar_campanas') }}" class="btn btn-secondary mb-3">← Volver</a>
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="nombre"
+                        name="nombre"
+                        value="{{ campana.nombre if campana else '' }}"
+                        {{ 'disabled' if solo_lectura else '' }}
+                        required>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <label for="desde" class="form-label">Fecha inicio</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="desde"
+                            name="desde"
+                            value="{{ campana.desde.strftime('%Y-%m-%d') if campana else '' }}"
+                            {{ 'disabled' if solo_lectura else '' }}
+                            required>
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label for="hasta" class="form-label">Fecha fin</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="hasta"
+                            name="hasta"
+                            value="{{ campana.hasta.strftime('%Y-%m-%d') if campana else '' }}"
+                            {{ 'disabled' if solo_lectura else '' }}
+                            required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="objetivo" class="form-label">Objetivo</label>
+                    <textarea
+                        class="form-control"
+                        id="objetivo"
+                        name="objetivo"
+                        rows="3"
+                        {{ 'disabled' if solo_lectura else '' }}>{{ campana.objetivo if campana and campana.objetivo else '' }}</textarea>
+                </div>
+                {% if not solo_lectura %}
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a href="{{ url_for('campanas.listar_campanas') }}" class="btn btn-secondary">Cancelar</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
