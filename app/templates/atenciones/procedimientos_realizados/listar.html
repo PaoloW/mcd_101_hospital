@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_pagination.html" import pagination_info %}
+{% from "_busqueda.html" import campo_busqueda %}
+
+{% block title %}Procedimientos realizados — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>Procedimientos realizados - {{ atencion.paciente.nombre_completo }}</h2>
+            <a href="{{ url_for('procedimientos_realizados.crear_procedimiento_realizado', atencion_id=atencion.id) }}" class="btn btn-primary">Nuevo</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('atenciones.ver_atencion', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
+        {{ campo_busqueda(busqueda) }}
+        <div class="table-responsive">
+            <table id="table" class="table table-sm table-striped table-hover" style="min-width: 600px">
+                <thead>
+                    <tr>
+                        <th width="10%">ID</th>
+                        <th width="25%">Procedimiento</th>
+                        <th width="20%">Resultado</th>
+                        <th width="30%">Observación</th>
+                        <th width="15%" class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for pr in procedimientos_realizados %}
+                    <tr>
+                        <td>{{ pr.id }}</td>
+                        <td>{{ pr.procedimiento.nombre }}</td>
+                        <td>{{ pr.resultado }}</td>
+                        <td>{{ pr.observacion or '—' }}</td>
+                        <td class="text-end">
+                            <div class="dropdown position-static">
+                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="viewport">
+                                    <span class="d-none d-lg-inline">Acciones</span>
+                                    <span class="d-lg-none">⚙︎</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a href="{{ url_for('procedimientos_realizados.ver_procedimiento_realizado', atencion_id=atencion.id, procedimiento_id=pr.id) }}" class="dropdown-item">Ver</a></li>
+                                    <li><a href="{{ url_for('procedimientos_realizados.editar_procedimiento_realizado', atencion_id=atencion.id, procedimiento_id=pr.id) }}" class="dropdown-item">Editar</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ url_for('procedimientos_realizados.eliminar_procedimiento_realizado', atencion_id=atencion.id, procedimiento_id=pr.id) }}" onsubmit="return confirm('¿Eliminar este procedimiento?');">
+                                            <button type="submit" class="dropdown-item">Eliminar</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay procedimientos registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ pagination_info(pagination, busqueda) }}
+    </div>
+</div>
+{% endblock %}

@@ -10,6 +10,10 @@ from app.models.seccion_procedimiento import SeccionProcedimiento
 from app.models.procedimiento import Procedimiento
 from app.models.medicamento import Medicamento
 from app.models.parametro import Parametro
+from app.models.analisis import Analisis
+from app.models.diagnostico import Diagnostico
+from app.models.prescripcion import Prescripcion
+from app.models.procedimiento_realizado import ProcedimientoRealizado
 
 __all__ = [
     "Persona",
@@ -24,4 +28,8 @@ __all__ = [
     "Procedimiento",
     "Medicamento",
     "Parametro",
+    "Analisis",
+    "Diagnostico",
+    "Prescripcion",
+    "ProcedimientoRealizado",
 ]

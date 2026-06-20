@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{% if solo_lectura %}Ver{% elif prescripcion %}Editar{% else %}Nuevo{% endif %} Prescripción — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if solo_lectura %}Ver{% elif prescripcion %}Editar{% else %}Nuevo{% endif %} Prescripción</h2>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="medicamento_id" class="form-label">Medicamento</label>
+                <select class="form-select" id="medicamento_id" name="medicamento_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for medicamento in medicamentos %}
+                    <option value="{{ medicamento.id }}" {% if prescripcion and prescripcion.medicamento_id == medicamento.id %}selected{% endif %}>{{ medicamento.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="text" class="form-control" id="cantidad" name="cantidad" value="{{ prescripcion.cantidad if prescripcion else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="frecuencia" class="form-label">Frecuencia</label>
+                <input type="text" class="form-control" id="frecuencia" name="frecuencia" value="{{ prescripcion.frecuencia if prescripcion else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="via_administracion" class="form-label">Vía de administración</label>
+                <input type="text" class="form-control" id="via_administracion" name="via_administracion" value="{{ prescripcion.via_administracion if prescripcion and prescripcion.via_administracion else '' }}" {% if solo_lectura %}disabled{% endif %}>
+            </div>
+            <div class="mb-3">
+                <label for="observacion" class="form-label">Observación</label>
+                <textarea class="form-control" id="observacion" name="observacion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ prescripcion.observacion if prescripcion and prescripcion.observacion else '' }}</textarea>
+            </div>
+            {% if not solo_lectura %}
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="btn btn-secondary">Cancelar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

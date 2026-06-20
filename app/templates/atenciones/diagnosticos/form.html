@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{% if solo_lectura %}Ver{% elif diagnostico %}Editar{% else %}Nuevo{% endif %} Diagnóstico — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if solo_lectura %}Ver{% elif diagnostico %}Editar{% else %}Nuevo{% endif %} Diagnóstico</h2>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('diagnosticos.listar_diagnosticos', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="enfermedad_id" class="form-label">Enfermedad</label>
+                <select class="form-select" id="enfermedad_id" name="enfermedad_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for enfermedad in enfermedades %}
+                    <option value="{{ enfermedad.id }}" {% if diagnostico and diagnostico.enfermedad_id == enfermedad.id %}selected{% endif %}>{{ enfermedad.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="observacion" class="form-label">Observación</label>
+                <textarea class="form-control" id="observacion" name="observacion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ diagnostico.observacion if diagnostico and diagnostico.observacion else '' }}</textarea>
+            </div>
+            {% if not solo_lectura %}
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('diagnosticos.listar_diagnosticos', atencion_id=atencion.id) }}" class="btn btn-secondary">Cancelar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

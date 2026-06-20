@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{% if solo_lectura %}Ver{% elif procedimiento_realizado %}Editar{% else %}Nuevo{% endif %} Procedimiento realizado — Hospital{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if solo_lectura %}Ver{% elif procedimiento_realizado %}Editar{% else %}Nuevo{% endif %} Procedimiento realizado</h2>
+    </div>
+    <div class="card-body">
+        <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="procedimiento_id" class="form-label">Procedimiento</label>
+                <select class="form-select" id="procedimiento_id" name="procedimiento_id" {% if solo_lectura %}disabled{% endif %} required>
+                    <option value="">-- Seleccione --</option>
+                    {% for procedimiento in procedimientos %}
+                    <option value="{{ procedimiento.id }}" {% if procedimiento_realizado and procedimiento_realizado.procedimiento_id == procedimiento.id %}selected{% endif %}>{{ procedimiento.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="resultado" class="form-label">Resultado</label>
+                <input type="text" class="form-control" id="resultado" name="resultado" value="{{ procedimiento_realizado.resultado if procedimiento_realizado else '' }}" {% if solo_lectura %}disabled{% endif %} required>
+            </div>
+            <div class="mb-3">
+                <label for="observacion" class="form-label">Observación</label>
+                <textarea class="form-control" id="observacion" name="observacion" rows="3" {% if solo_lectura %}disabled{% endif %}>{{ procedimiento_realizado.observacion if procedimiento_realizado and procedimiento_realizado.observacion else '' }}</textarea>
+            </div>
+            {% if not solo_lectura %}
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="btn btn-secondary">Cancelar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
