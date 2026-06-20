@@ -1,3 +1,4 @@
+import csv
 import io
 import base64
 from datetime import datetime, timedelta
@@ -8,14 +9,21 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 
-from flask import Blueprint, render_template, request, session, flash, redirect, url_for
+from flask import Blueprint, render_template, request, session, flash, redirect, url_for, Response
 from sqlalchemy import func, case
 
 from app.extensions import db
 from app.models.diagnostico import Diagnostico
 from app.models.enfermedad import Enfermedad
 from app.models.atencion_medica import AtencionMedica
+from app.models.analisis import Analisis
+from app.models.prescripcion import Prescripcion
+from app.models.procedimiento_realizado import ProcedimientoRealizado
+from app.models.medicamento import Medicamento
+from app.models.parametro import Parametro
+from app.models.procedimiento import Procedimiento
 from app.models.persona import Persona
+from app.models.usuario import Usuario
 from app.controllers.auth_controller import admin_requerido
 
 reportes_bp = Blueprint("reportes", __name__, url_prefix="/reportes")
@@ -60,6 +68,320 @@ def _obtener_grupo_etario(edad):
         if min_age <= edad <= max_age:
             return idx
     return None
+
+@reportes_bp.route("/masivos", methods=["GET", "POST"])
+@admin_requerido
+def reporte_masivos():
+    """Vista del reporte masivo con descarga CSV."""
+    today = datetime.now().date()
+    default_start = today - timedelta(days=30)
+    total = None
+    tipo_reporte = ""
+    documento = ""
+
+    fecha_inicio = default_start
+    fecha_fin = today
+
+    if request.method == "POST":
+        tipo_reporte = request.form.get("tipo_reporte", "")
+        fecha_inicio_str = request.form.get("fecha_inicio", "")
+        fecha_fin_str = request.form.get("fecha_fin", "")
+        documento = request.form.get("documento", "").strip()
+
+        try:
+            fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d").date() if fecha_inicio_str else default_start
+            fecha_fin = datetime.strptime(fecha_fin_str, "%Y-%m-%d").date() if fecha_fin_str else today
+        except (ValueError, TypeError):
+            fecha_inicio = default_start
+            fecha_fin = today
+
+        if fecha_inicio > fecha_fin:
+            fecha_inicio, fecha_fin = fecha_fin, fecha_inicio
+
+        if not tipo_reporte:
+            flash("Debe seleccionar un tipo de reporte.", "warning")
+        else:
+            return _generar_csv(tipo_reporte, fecha_inicio, fecha_fin, documento)
+
+    return render_template(
+        "reportes/masivos.html",
+        fecha_inicio=fecha_inicio.strftime("%Y-%m-%d"),
+        fecha_fin=fecha_fin.strftime("%Y-%m-%d"),
+        documento=documento,
+        tipo_reporte=tipo_reporte,
+        total=total,
+    )
+
+
+def _generar_csv(tipo_reporte, fecha_inicio, fecha_fin, documento):
+    """Genera y descarga un CSV con los datos filtrados."""
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=";")
+    rows = []
+
+    if tipo_reporte == "atencion":
+        paciente_persona = db.aliased(Persona)
+        responsable_persona = db.aliased(Persona)
+        responsable_usuario = db.aliased(Usuario)
+
+        writer.writerow([
+            "ID Atención", "Fecha/Hora", "Paciente", "Documento Paciente",
+            "Responsable", "Documento Responsable", "Observación"
+        ])
+        query = (
+            db.session.query(
+                AtencionMedica.id,
+                AtencionMedica.fecha_hora,
+                paciente_persona.nombre_completo.label("paciente_nombre"),
+                paciente_persona.numero_documento.label("paciente_documento"),
+                responsable_persona.nombre_completo.label("responsable_nombre"),
+                responsable_persona.numero_documento.label("responsable_documento"),
+                AtencionMedica.observacion,
+            )
+            .join(paciente_persona, AtencionMedica.paciente_id == paciente_persona.id)
+            .join(responsable_usuario, AtencionMedica.responsable_id == responsable_usuario.id)
+            .join(responsable_persona, responsable_usuario.persona_id == responsable_persona.id)
+            .filter(AtencionMedica.fecha_hora.between(
+                datetime.combine(fecha_inicio, datetime.min.time()),
+                datetime.combine(fecha_fin, datetime.max.time()),
+            ))
+        )
+        if documento:
+            query = query.filter(
+                db.or_(
+                    paciente_persona.numero_documento.ilike(f"%{documento}%"),
+                    responsable_persona.numero_documento.ilike(f"%{documento}%"),
+                )
+            )
+        for row in query.all():
+            writer.writerow([
+                row.id,
+                row.fecha_hora.strftime("%Y-%m-%d %H:%M") if row.fecha_hora else "",
+                row.paciente_nombre,
+                row.paciente_documento,
+                row.responsable_nombre,
+                row.responsable_documento,
+                row.observacion or "",
+            ])
+
+    elif tipo_reporte == "analisis":
+        paciente_persona = db.aliased(Persona)
+        responsable_persona = db.aliased(Persona)
+        responsable_usuario = db.aliased(Usuario)
+
+        writer.writerow([
+            "ID Análisis", "Fecha Muestra", "Fecha Análisis",
+            "Paciente", "Documento Paciente",
+            "Responsable", "Documento Responsable",
+            "Parámetro", "Valor Resultado", "Observación"
+        ])
+        query = (
+            db.session.query(
+                Analisis.id,
+                Analisis.fechahora_muestra,
+                Analisis.fechahora_analisis,
+                paciente_persona.nombre_completo.label("paciente_nombre"),
+                paciente_persona.numero_documento.label("paciente_documento"),
+                responsable_persona.nombre_completo.label("responsable_nombre"),
+                responsable_persona.numero_documento.label("responsable_documento"),
+                Parametro.nombre.label("parametro_nombre"),
+                Analisis.valor_resultado,
+                Analisis.observacion,
+            )
+            .join(AtencionMedica, Analisis.atencion_id == AtencionMedica.id)
+            .join(paciente_persona, AtencionMedica.paciente_id == paciente_persona.id)
+            .join(responsable_usuario, Analisis.responsable_id == responsable_usuario.id)
+            .join(responsable_persona, responsable_usuario.persona_id == responsable_persona.id)
+            .join(Parametro, Analisis.parametro_id == Parametro.id)
+            .filter(Analisis.fechahora_analisis.between(
+                datetime.combine(fecha_inicio, datetime.min.time()),
+                datetime.combine(fecha_fin, datetime.max.time()),
+            ))
+        )
+        if documento:
+            query = query.filter(
+                db.or_(
+                    paciente_persona.numero_documento.ilike(f"%{documento}%"),
+                    responsable_persona.numero_documento.ilike(f"%{documento}%"),
+                )
+            )
+        for row in query.all():
+            writer.writerow([
+                row.id,
+                row.fechahora_muestra.strftime("%Y-%m-%d %H:%M") if row.fechahora_muestra else "",
+                row.fechahora_analisis.strftime("%Y-%m-%d %H:%M") if row.fechahora_analisis else "",
+                row.paciente_nombre,
+                row.paciente_documento,
+                row.responsable_nombre,
+                row.responsable_documento,
+                row.parametro_nombre,
+                str(row.valor_resultado) if row.valor_resultado is not None else "",
+                row.observacion or "",
+            ])
+
+    elif tipo_reporte == "diagnosticos":
+        paciente_persona = db.aliased(Persona)
+        responsable_persona = db.aliased(Persona)
+        responsable_usuario = db.aliased(Usuario)
+
+        writer.writerow([
+            "ID Diagnóstico", "Fecha", "Paciente", "Documento Paciente",
+            "Responsable", "Documento Responsable",
+            "Enfermedad", "Descripción"
+        ])
+        query = (
+            db.session.query(
+                Diagnostico.id,
+                Diagnostico.fecha,
+                paciente_persona.nombre_completo.label("paciente_nombre"),
+                paciente_persona.numero_documento.label("paciente_documento"),
+                responsable_persona.nombre_completo.label("responsable_nombre"),
+                responsable_persona.numero_documento.label("responsable_documento"),
+                Enfermedad.nombre.label("enfermedad_nombre"),
+                Diagnostico.descripcion,
+            )
+            .join(AtencionMedica, Diagnostico.atencion_id == AtencionMedica.id)
+            .join(paciente_persona, AtencionMedica.paciente_id == paciente_persona.id)
+            .join(responsable_usuario, Diagnostico.responsable_id == responsable_usuario.id)
+            .join(responsable_persona, responsable_usuario.persona_id == responsable_persona.id)
+            .join(Enfermedad, Diagnostico.enfermedad_id == Enfermedad.id, isouter=True)
+            .filter(Diagnostico.fecha.between(fecha_inicio, fecha_fin))
+        )
+        if documento:
+            query = query.filter(
+                db.or_(
+                    paciente_persona.numero_documento.ilike(f"%{documento}%"),
+                    responsable_persona.numero_documento.ilike(f"%{documento}%"),
+                )
+            )
+        for row in query.all():
+            writer.writerow([
+                row.id,
+                row.fecha.strftime("%Y-%m-%d") if row.fecha else "",
+                row.paciente_nombre,
+                row.paciente_documento,
+                row.responsable_nombre,
+                row.responsable_documento,
+                row.enfermedad_nombre or "",
+                row.descripcion or "",
+            ])
+
+    elif tipo_reporte == "procedimientos":
+        paciente_persona = db.aliased(Persona)
+        responsable_persona = db.aliased(Persona)
+        responsable_usuario = db.aliased(Usuario)
+
+        writer.writerow([
+            "ID Procedimiento Realizado", "Fecha",
+            "Paciente", "Documento Paciente",
+            "Responsable", "Documento Responsable",
+            "Procedimiento", "Código CPMS", "Observación"
+        ])
+        query = (
+            db.session.query(
+                ProcedimientoRealizado.id,
+                ProcedimientoRealizado.fecha,
+                paciente_persona.nombre_completo.label("paciente_nombre"),
+                paciente_persona.numero_documento.label("paciente_documento"),
+                responsable_persona.nombre_completo.label("responsable_nombre"),
+                responsable_persona.numero_documento.label("responsable_documento"),
+                Procedimiento.nombre.label("procedimiento_nombre"),
+                Procedimiento.codigo_cpms,
+                ProcedimientoRealizado.observacion,
+            )
+            .join(AtencionMedica, ProcedimientoRealizado.atencion_id == AtencionMedica.id)
+            .join(paciente_persona, AtencionMedica.paciente_id == paciente_persona.id)
+            .join(responsable_usuario, ProcedimientoRealizado.responsable_id == responsable_usuario.id)
+            .join(responsable_persona, responsable_usuario.persona_id == responsable_persona.id)
+            .join(Procedimiento, ProcedimientoRealizado.procedimiento_id == Procedimiento.id)
+            .filter(ProcedimientoRealizado.fecha.between(fecha_inicio, fecha_fin))
+        )
+        if documento:
+            query = query.filter(
+                db.or_(
+                    paciente_persona.numero_documento.ilike(f"%{documento}%"),
+                    responsable_persona.numero_documento.ilike(f"%{documento}%"),
+                )
+            )
+        for row in query.all():
+            writer.writerow([
+                row.id,
+                row.fecha.strftime("%Y-%m-%d") if row.fecha else "",
+                row.paciente_nombre,
+                row.paciente_documento,
+                row.responsable_nombre,
+                row.responsable_documento,
+                row.procedimiento_nombre,
+                row.codigo_cpms or "",
+                row.observacion or "",
+            ])
+
+    elif tipo_reporte == "prescripciones":
+        paciente_persona = db.aliased(Persona)
+        responsable_persona = db.aliased(Persona)
+        responsable_usuario = db.aliased(Usuario)
+
+        writer.writerow([
+            "ID Prescripción", "Fecha",
+            "Paciente", "Documento Paciente",
+            "Responsable", "Documento Responsable",
+            "Medicamento", "Dosis", "Cantidad"
+        ])
+        query = (
+            db.session.query(
+                Prescripcion.id,
+                Prescripcion.fecha,
+                paciente_persona.nombre_completo.label("paciente_nombre"),
+                paciente_persona.numero_documento.label("paciente_documento"),
+                responsable_persona.nombre_completo.label("responsable_nombre"),
+                responsable_persona.numero_documento.label("responsable_documento"),
+                Medicamento.denominacion.label("medicamento_nombre"),
+                Prescripcion.dosis,
+                Prescripcion.cantidad,
+            )
+            .join(AtencionMedica, Prescripcion.atencion_id == AtencionMedica.id)
+            .join(paciente_persona, AtencionMedica.paciente_id == paciente_persona.id)
+            .join(responsable_usuario, Prescripcion.responsable_id == responsable_usuario.id)
+            .join(responsable_persona, responsable_usuario.persona_id == responsable_persona.id)
+            .join(Medicamento, Prescripcion.medicamento_id == Medicamento.id)
+            .filter(Prescripcion.fecha.between(fecha_inicio, fecha_fin))
+        )
+        if documento:
+            query = query.filter(
+                db.or_(
+                    paciente_persona.numero_documento.ilike(f"%{documento}%"),
+                    responsable_persona.numero_documento.ilike(f"%{documento}%"),
+                )
+            )
+        for row in query.all():
+            writer.writerow([
+                row.id,
+                row.fecha.strftime("%Y-%m-%d") if row.fecha else "",
+                row.paciente_nombre,
+                row.paciente_documento,
+                row.responsable_nombre,
+                row.responsable_documento,
+                row.medicamento_nombre,
+                row.dosis or "",
+                str(row.cantidad) if row.cantidad is not None else "",
+            ])
+
+    else:
+        flash("Tipo de reporte no válido.", "danger")
+        return redirect(url_for("reportes.reporte_masivos"))
+
+    csv_content = output.getvalue()
+    output.close()
+
+    filename = f"reporte_{tipo_reporte}_{fecha_inicio.strftime('%Y%m%d')}_{fecha_fin.strftime('%Y%m%d')}.csv"
+    return Response(
+        csv_content,
+        mimetype="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "text/csv; charset=utf-8-sig",
+        },
+    )
 
 
 @reportes_bp.route("/diagnosticos", methods=["GET", "POST"])

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes Masivos — Hospital{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Reportes Masivos</h2>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="tipo_reporte" class="form-label">Tipo de reporte</label>
+                <select class="form-select" id="tipo_reporte" name="tipo_reporte" required>
+                    <option value="">— Seleccione —</option>
+                    <option value="atencion" {{ 'selected' if tipo_reporte == 'atencion' else '' }}>Atenciones</option>
+                    <option value="analisis" {{ 'selected' if tipo_reporte == 'analisis' else '' }}>Análisis</option>
+                    <option value="diagnosticos" {{ 'selected' if tipo_reporte == 'diagnosticos' else '' }}>Diagnósticos</option>
+                    <option value="procedimientos" {{ 'selected' if tipo_reporte == 'procedimientos' else '' }}>Procedimientos</option>
+                    <option value="prescripciones" {{ 'selected' if tipo_reporte == 'prescripciones' else '' }}>Prescripciones</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="fecha_inicio" class="form-label">Fecha inicio</label>
+                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                       value="{{ fecha_inicio }}">
+            </div>
+            <div class="col-md-3">
+                <label for="fecha_fin" class="form-label">Fecha fin</label>
+                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
+                       value="{{ fecha_fin }}">
+            </div>
+            <div class="col-md-2">
+                <label for="documento" class="form-label">N° Documento</label>
+                <input type="text" class="form-control" id="documento" name="documento"
+                       placeholder="Paciente/Responsable" value="{{ documento or '' }}">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-download"></i> Descargar CSV
+                </button>
+                <a href="{{ url_for('reportes.reporte_masivos') }}" class="btn btn-outline-secondary">Restablecer</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if total is not none %}
+<div class="alert alert-{{ 'success' if total > 0 else 'warning' }}">
+    {% if total > 0 %}
+        Se descargarán <strong>{{ total }}</strong> registro(s).
+    {% else %}
+        No se encontraron registros con los filtros seleccionados.
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}

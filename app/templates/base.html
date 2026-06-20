@@ -40,27 +40,8 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarReportes">
                                     <li><a class="dropdown-item" href="{{ url_for('reportes.reporte_diagnosticos') }}">Diagnósticos</a></li>
-                                </ul>
-                            </li>
-                        {% endif %}
-                        {% if session.get('rol_id') in [2, 4, 5] %}
-                            <li class="nav-item">
-                                <a class="nav-link" aria-current="page" href="{{ url_for('campanas.listar_campanas') }}">Campañas</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarCatalogos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Catálogos
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarCatalogos">
-                                    <li><a class="dropdown-item" href="{{ url_for('enfermedades.listar_enfermedades') }}">Enfermedades</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('secciones_procedimientos.listar_secciones') }}">Secciones de procedimientos</a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('procedimientos.listar_procedimientos') }}">Procedimientos</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('medicamentos.listar_medicamentos') }}">Medicamentos</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('tipos_parametros.listar_tipos_parametros') }}">Tipos de parámetros</a></li>
-                                    <li><a class="dropdown-item" href="{{ url_for('parametros.listar_parametros') }}">Parámetros</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('reportes.reporte_masivos') }}">Reportes masivos</a></li>
                                 </ul>
                             </li>
                         {% endif %}
