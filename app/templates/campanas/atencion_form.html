@@ -16,8 +16,21 @@
             <form method="POST">
                 <div class="mb-3">
                     <label class="form-label" for="paciente_id">Paciente</label>
-                    <input type="text" class="form-control" value="Campaña - {{ campana.nombre }}" disabled>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="paciente_documento"
+                            maxlength="15"
+                            class="form-control"
+                            placeholder="Ingrese el número de documento"
+                        >
+                        <button type="button" id="btn-buscar-paciente" class="btn btn-secondary">Buscar</button>
+                    </div>
                 </div>
+                <div class="mb-3">
+                    <div id="mensaje-resultado" class="alert alert-secondary">Busque al paciente por su documento.</div>
+                </div>
+                <input type="hidden" id="paciente_id" name="paciente_id" value="">
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label" for="fecha_hora">Fecha y hora</label>
@@ -59,4 +72,67 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const inputDocumento = document.getElementById('paciente_documento');
+    const btnBuscar = document.getElementById('btn-buscar-paciente');
+    const mensaje_resultado = document.getElementById('mensaje-resultado');
+    const inputPacienteId = document.getElementById('paciente_id');
+    const urlBusqueda = "{{ url_for('personas.buscar_por_documento') }}";
+
+    function limpiarBusqueda() {
+        inputPacienteId.value = '';
+        mensaje_resultado.className = 'alert alert-secondary';
+    }
+
+    async function buscarPersona() {
+        const documento = inputDocumento.value.trim();
+        limpiarBusqueda();
+
+        if (!documento) {
+            mensaje_resultado.innerHTML = 'Ingrese un número de documento.';
+            mensaje_resultado.className = 'alert alert-danger';
+            return;
+        }
+
+        try {
+            const respuesta = await fetch(`${urlBusqueda}?documento=${encodeURIComponent(documento)}`);
+            const datos = await respuesta.json();
+
+            if (!datos.encontrado) {
+                mensaje_resultado.innerHTML = datos.mensaje;
+                mensaje_resultado.className = 'alert alert-danger';
+                return;
+            }
+
+            inputPacienteId.value = datos.id;
+            mensaje_resultado.innerHTML = datos.nombre_completo || datos.numero_documento;
+            mensaje_resultado.className = 'alert alert-success';
+        } catch (error) {
+            mensaje_resultado.innerHTML = 'Error al buscar el paciente.';
+            mensaje_resultado.className = 'alert alert-danger';
+        }
+    }
+
+    btnBuscar.addEventListener('click', buscarPersona);
+    inputDocumento.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Enter') {
+            evento.preventDefault();
+            buscarPersona();
+        }
+    });
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (evento) {
+        if (!inputPacienteId.value) {
+            evento.preventDefault();
+            mensaje_resultado.innerHTML = 'Debe buscar y seleccionar un paciente antes de guardar.';
+            mensaje_resultado.className = 'alert alert-danger';
+        }
+    });
+})();
+</script>
 {% endblock %}

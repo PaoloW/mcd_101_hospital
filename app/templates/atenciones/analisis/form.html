@@ -11,13 +11,14 @@
         <a href="{{ url_for('analisis.listar_analisis', atencion_id=atencion.id) }}" class="btn btn-secondary mb-3">← Volver</a>
         <form method="POST">
             <div class="mb-3">
-                <label for="parametro_id" class="form-label">Parámetro</label>
-                <select class="form-select" id="parametro_id" name="parametro_id" {% if solo_lectura %}disabled{% endif %} required>
-                    <option value="">-- Seleccione --</option>
-                    {% for parametro in parametros %}
-                    <option value="{{ parametro.id }}" {% if analisis and analisis.parametro_id == parametro.id %}selected{% endif %}>{{ parametro.nombre }}</option>
-                    {% endfor %}
-                </select>
+                <label class="form-label">Parámetro</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="parametro_nombre" value="{{ analisis.parametro.nombre if analisis and analisis.parametro else '' }}" readonly>
+                    <input type="hidden" id="parametro_id" name="parametro_id" value="{{ analisis.parametro_id if analisis else '' }}">
+                    <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalParametros" {% if solo_lectura %}disabled{% endif %}>
+                        Seleccionar
+                    </button>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="valor_resultado" class="form-label">Valor resultado</label>
@@ -51,4 +52,52 @@
         </form>
     </div>
 </div>
+
+<div class="modal fade" id="modalParametros" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Seleccionar parámetro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Nombre</th>
+                                <th>Unidad</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                            <tbody>
+                            {% for parametro in parametros %}
+                            <tr>
+                                <td>{{ parametro.tipo_parametro.nombre }}</td>
+                                <td>{{ parametro.nombre }}</td>
+                                <td>{{ parametro.unidad_medida or '—' }}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-primary">Elegir</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function seleccionarParametro(id, nombre) {
+    document.getElementById('parametro_id').value = id;
+    document.getElementById('parametro_nombre').value = nombre;
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalParametros'));
+    modal.hide();
+}
+</script>
 {% endblock %}
