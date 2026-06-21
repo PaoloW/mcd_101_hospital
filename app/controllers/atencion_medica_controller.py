@@ -11,6 +11,7 @@ from app.models.tipo_atencion import TipoAtencion
 from app.models.estado_atencion import EstadoAtencion
 from app.models.campana_salud import CampanaSalud
 from app.models.participante import Participante
+from sqlalchemy import or_, cast, String
 
 atenciones_bp = Blueprint("atenciones", __name__, url_prefix="/atenciones")
 
@@ -34,8 +35,15 @@ def listar_atenciones():
     page = request.args.get("page", 1, type=int)
     busqueda = request.args.get("busqueda", "").strip()
     query = AtencionMedica.query.order_by(AtencionMedica.id.desc())
+    query = query.join(AtencionMedica.paciente).join(AtencionMedica.tipo_atencion).join(AtencionMedica.estado_atencion)
     if busqueda:
-        filtro = AtencionMedica.observacion.ilike(f"%{busqueda}%")
+        filtro = or_(
+            AtencionMedica.observacion.ilike(f"%{busqueda}%"),
+            Persona.nombre_completo.ilike(f"%{busqueda}%"),
+            cast(AtencionMedica.fecha_hora, String).ilike(f"%{busqueda}%"),
+            TipoAtencion.nombre.ilike(f"%{busqueda}%"),
+            EstadoAtencion.nombre.ilike(f"%{busqueda}%"),
+        )
         query = query.filter(filtro)
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
     return render_template("atenciones/listar.html", pagination=pagination, atenciones=pagination.items, busqueda=busqueda)

@@ -13,7 +13,6 @@ PER_PAGE = 20
 def _datos_formulario_prescripcion():
     return {
         "medicamento_id": request.form.get("medicamento_id", "") or None,
-        "atencion_id": request.form.get("atencion_id", "") or None,
         "dosis": request.form.get("dosis", "").strip(),
         "fecha": request.form.get("fecha", "") or None,
         "cantidad": request.form.get("cantidad", "") or None,
@@ -30,7 +29,7 @@ def listar_prescripciones(atencion_id):
     busqueda = request.args.get("busqueda", "").strip()
     query = Prescripcion.query.filter_by(atencion_id=atencion_id).order_by(Prescripcion.id.desc())
     if busqueda:
-        query = query.join(Medicamento).filter(Medicamento.nombre.ilike(f"%{busqueda}%"))
+        query = query.join(Medicamento).filter(Medicamento.denominacion.ilike(f"%{busqueda}%"))
     pagination = query.paginate(page=page, per_page=PER_PAGE, error_out=False)
     medicamentos = Medicamento.query.all()
     return render_template(

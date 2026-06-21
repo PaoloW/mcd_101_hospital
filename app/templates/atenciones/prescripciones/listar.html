@@ -39,7 +39,7 @@
                     {% for prescripcion in prescripciones %}
                     <tr>
                         <td>{{ prescripcion.id }}</td>
-                        <td>{{ prescripcion.medicamento.nombre }}</td>
+                        <td>{{ prescripcion.medicamento.denominacion }}</td>
                         <td>{{ prescripcion.dosis }}</td>
                         <td>{{ prescripcion.fecha.strftime('%Y-%m-%d') if prescripcion.fecha else '—' }}</td>
                         <td>{{ prescripcion.cantidad or '—' }}</td>

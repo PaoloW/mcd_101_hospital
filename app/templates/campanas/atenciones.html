@@ -42,7 +42,51 @@
                         <td>{{ atencion.responsable.persona.nombre_completo if atencion.responsable else '—' }}</td>
                         <td>{{ atencion.estado_atencion.nombre }}</td>
                         <td class="text-end">
-                            <a href="{{ url_for('atenciones.ver_atencion', atencion_id=atencion.id) }}" class="btn btn-secondary btn-sm">Ver</a>
+                            {% if session.get('rol_id') in [2, 4] %}
+                            <form
+                                method="POST"
+                                action="{{ url_for('atenciones.eliminar_atencion', atencion_id=atencion.id) }}"
+                                onsubmit="return confirm('¿Eliminar esta atención?');"
+                                class="d-inline"
+                            >
+                                <div class="dropdown position-static">
+                                    <button
+                                        class="btn btn-secondary btn-sm dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        data-bs-boundary="viewport" 
+                                    >
+                                        <span class="d-none d-lg-inline">Acciones</span>
+                                        <span class="d-lg-none">⚙︎</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a href="{{ url_for('atenciones.ver_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Ver</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('atenciones.actualizar_atencion', atencion_id=atencion.id) }}" class="dropdown-item">Editar</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><h6 class="dropdown-header">Registros médicos</h6></li>
+                                        <li>
+                                            <a href="{{ url_for('analisis.listar_analisis', atencion_id=atencion.id) }}" class="dropdown-item">Análisis</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('diagnosticos.listar_diagnosticos', atencion_id=atencion.id) }}" class="dropdown-item">Diagnósticos</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('prescripciones.listar_prescripciones', atencion_id=atencion.id) }}" class="dropdown-item">Prescripciones</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('procedimientos_realizados.listar_procedimientos_realizados', atencion_id=atencion.id) }}" class="dropdown-item">Procedimientos realizados</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><button type="submit" class="dropdown-item">Eliminar</li>
+                                    </ul>
+                                </div>
+                            </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% else %}
