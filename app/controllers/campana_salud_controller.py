@@ -164,32 +164,12 @@ def crear_atencion_campana(campana_id):
                 responsables=Usuario.query.filter_by(rol_id=2).all(),
             )
 
-        tipo_campana = next(
-            (t for t in TipoAtencion.query.all() if t.nombre.lower() == "campaña"), None
-        )
-        estado_atencion = next(
-            (e for e in EstadoAtencion.query.all() if e.nombre.lower() == "reservada"),
-            None,
-        )
-
-        if not tipo_campana or not estado_atencion:
-            flash(
-                "Error: No existe el tipo de atención 'campaña' o estado 'reservada'.",
-                "danger",
-            )
-            return render_template(
-                "campanas/atencion_form.html",
-                campana=campana,
-                ahora=ahora,
-                responsables=Usuario.query.filter_by(rol_id=2).all(),
-            )
-
         atencion = AtencionMedica(
             fecha_hora=fecha_hora,
-            estado_atencion_id=estado_atencion.id,
+            estado_atencion_id=2,
             paciente_id=paciente_id,
             responsable_id=responsable_id,
-            tipo_atencion_id=tipo_campana.id,
+            tipo_atencion_id=3,
             observacion=observacion,
         )
         db.session.add(atencion)
