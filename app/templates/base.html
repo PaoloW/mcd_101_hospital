@@ -27,9 +27,11 @@
                                 <a class="nav-link" aria-current="page" href="{{ url_for('atenciones.listar_mis_atenciones') }}">Mis atenciones</a>
                             </li>
                         {% endif %}
+                        {% if session.get('rol_id') == 1, 2, 4, 5 %}
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="{{ url_for('personas.listar_personas') }}">Personas</a>
                         </li>
+                        {% endif %}
                         {% if session.get('rol_id') in [1] %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('usuarios.listar_usuarios') }}">Usuarios</a>
@@ -45,7 +47,7 @@
                                 </ul>
                             </li>
                         {% endif %}
-                        {% if session.get('rol_id') in [2, 4, 5] %}
+                        {% if session.get('rol_id') in [1] %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarCatalogos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Catálogos
@@ -61,6 +63,11 @@
                                     <li><a class="dropdown-item" href="{{ url_for('tipos_parametros.listar_tipos_parametros') }}">Tipos de parámetros</a></li>
                                     <li><a class="dropdown-item" href="{{ url_for('parametros.listar_parametros') }}">Parámetros</a></li>
                                 </ul>
+                            </li>
+                        {% endif %}
+                        {% if session.get('rol_id') in [2] %}
+                            <li class="nav-item">
+                                <a class="nav-link" aria-current="page" href="{{ url_for('campanas.listar_campanas') }}">Campañas</a>
                             </li>
                         {% endif %}
                     </ul>
